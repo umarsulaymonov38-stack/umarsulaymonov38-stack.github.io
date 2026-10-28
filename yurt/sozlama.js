@@ -7,7 +7,7 @@ window.MAKTAB = {
   portal: '../',                        // "Maktabni almashtirish" tugmasi manzili
 
   // Maktabning o'z Supabase bazasi (Project Settings → API). Bo'sh bo'lsa, kirish oynasi "tayyorlanmoqda" deydi.
-  baza: { url: '', kalit: '' },
+  baza: { url: 'https://qthlpzkcxdvgpsnjgdrx.supabase.co', kalit: 'sb_publishable_UHGTE41rMK7YedzgJlIzaw_ItIQqImj' },
   email_domen: 'ota.yurtschool.app',    // ota-ona va o'qituvchi akkauntlari ichki emaili (telefon@shu domen)
 
   kirish: {
