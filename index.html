@@ -256,7 +256,7 @@ document.getElementById("yil").textContent = new Date().getFullYear()+"-yil";
 
 /* ===== ADMIN PAROLI =====
    Parolni almashtirish: yangi parolning SHA-256 xeshini shu qatorga yozing. */
-const ADMIN_XESH = "059a50ce956b7ec61527c7ecc0c55b5a009dc54ab4acddce8852b46baa2aba30";
+const ADMIN_XESH = "ca7728fbd3aba3e6a2e90fe87f7d27eeec7a87667f0c62c101b0d33c2bb20dbd";
 async function xesh(s){
   const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
