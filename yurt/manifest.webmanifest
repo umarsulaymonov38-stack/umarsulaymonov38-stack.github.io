@@ -1,0 +1,16 @@
+{
+  "name": "Yurt School — Boshqaruv platformasi",
+  "short_name": "Yurt School",
+  "description": "Yurt School boshqaruv platformasi: baholar, davomat, to'lovlar, taomnoma.",
+  "lang": "uz",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#14216e",
+  "theme_color": "#14216e",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
