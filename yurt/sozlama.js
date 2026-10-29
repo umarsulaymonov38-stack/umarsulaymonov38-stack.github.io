@@ -10,6 +10,8 @@ window.MAKTAB = {
   baza: { url: 'https://qthlpzkcxdvgpsnjgdrx.supabase.co', kalit: 'sb_publishable_UHGTE41rMK7YedzgJlIzaw_ItIQqImj' },
   email_domen: 'ota.yurtschool.app',    // ota-ona va o'qituvchi akkauntlari ichki emaili (telefon@shu domen)
 
+  yuqori_sinflar: '5–9',              // maktabda 9-sinfgacha o'qitiladi
+
   kirish: {
     rasm: 'img/fon.jpg',                // admin, ota-ona va o'qituvchi uchun bitta fon
     rasm_izoh: 'Yurt School — Barchaning muvaffaqiyati uchun birga!',
