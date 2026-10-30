@@ -279,3 +279,20 @@ footer svg{width:40px;height:25px}
 .pk-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
 .pk-h{display:flex;align-items:center;gap:8px}.pk-h .i{color:var(--ac)}
 @media (max-width:560px){.pk-grid{grid-template-columns:1fr}}
+/* Kunlik savol: farzand bilan muloqot */
+.tk{position:relative;overflow:hidden;border:1px solid color-mix(in srgb,#d6336c 25%,var(--ln));background:linear-gradient(135deg,color-mix(in srgb,#d6336c 7%,var(--card)),var(--card) 60%)}
+.tk-hd{display:flex;align-items:center;gap:14px}
+.tk-k{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#d6336c}
+.tk h3{margin:3px 0 0;font-size:19px;line-height:1.3;color:var(--ink)}
+.tk-tip{margin:12px 0 14px;color:var(--mut)}
+.tk-btn{display:flex;flex-wrap:wrap;gap:10px}
+.tk-btn .btn{display:inline-flex;align-items:center;gap:8px;width:auto;background:linear-gradient(135deg,#e64980,#c2255c);box-shadow:0 8px 20px -8px rgba(194,37,92,.7)}
+.tk-ok,.tk-no{display:flex;gap:10px;align-items:flex-start;margin:12px 0 0;padding:12px 14px;border-radius:12px}
+.tk-ok{background:color-mix(in srgb,var(--ok) 12%,var(--card))}.tk-ok .i{color:#d6336c;margin-top:2px}
+.tk-no{background:color-mix(in srgb,#f2b705 16%,var(--card))}.tk-no .i{color:#b07d00;margin-top:2px}
+.tk-week{display:flex;gap:8px;margin-top:14px}
+.tk-week span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;color:var(--mut)}
+.tk-week i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:800;background:var(--zb);border:1px dashed var(--ln);color:#fff}
+.tk-week .ha i{background:#2f9e44;border:0}.tk-week .yoq i{background:#f2b705;border:0}
+.tk-list{margin:8px 0 0;padding-left:20px;display:grid;gap:10px}
+@media (max-width:560px){.tk h3{font-size:16.5px}.tk-btn .btn,.tk-btn .tab{flex:1;justify-content:center}.tk-week{gap:4px;justify-content:space-between}.tk-week i{width:28px;height:28px}}

@@ -252,8 +252,8 @@ function chips(){
 async function render(){
  flush();const tk=++S.rt;if(!ME)return;
  if(ME.role=='parent'){$('view').innerHTML='<div class="ld"><i class="spin"></i>Yuklanmoqda…</div>';const pv=await parentView().catch(()=>null);
-  const[pa,hb,hf]=await Promise.all([parentAll().catch(()=>null).then(x=>x||payInfo().then(r=>({pr:r.b,ph:r.t})).catch(()=>({}))),BOOKS?parentBooks().catch(()=>''):'',ON('fikr')?fbParent().catch(()=>''):'']);
-  if(tk==S.rt){S.pp={pv,pa,hb,hf};parentPaint()}return}
+  const[pa,hb,hf,tk2]=await Promise.all([parentAll().catch(()=>null).then(x=>x||payInfo().then(r=>({pr:r.b,ph:r.t})).catch(()=>({}))),BOOKS?parentBooks().catch(()=>''):'',ON('fikr')?fbParent().catch(()=>''):'',talkLoad().catch(()=>null)]);
+  if(tk==S.rt){S.pp={pv,pa,hb,hf,tk:tk2};parentPaint()}return}
  const A=ME.role=='admin',c0=CL.find(x=>x.id==S.cls)||{},rp=c0.kind=='rep';setMode(c0);
  // Admin bo'limlari: modul o'chirilgan bo'lsa, bo'lim ko'rinmaydi
  const AV=[['userx','Kelmaganlar',absView],['clock','Kech kelganlar',lateView,'turniket'],['logout','Ketish davomati',leaveView,'turniket'],['card',"To'lov",payView,'tolov'],['sliders','Sozlamalar',setView],['food','Taomnoma',menuView,'taomnoma'],['msg','Fikr-mulohazalar',fbView,'fikr']].filter(x=>!x[3]||ON(x[3]));const T=(i,t)=>ic(i)+t,tabs=rp?[T('edit','Kunlik jadval'),T('trophy',"O'quvchilar reytingi"),T('target','Guruhlar reytingi'),T('user',"O'qituvchi")]:[T('edit','Baholash'),T('trophy',"O'quvchilar reytingi"),T('school','Sinflar reytingi')].concat(A?AV.map(x=>T(x[0],x[1])):[]);
@@ -434,6 +434,7 @@ async function parentView(){const mm=S.month.split('-'),a=S.month+'-01',b=S.mont
 function pkSv(){const{pv={},pa={},hb='',hf=''}=S.pp||{};
  const st=pa.me,nb=pa.nb||0,nl=pa.nl||0;
  return [['bugun','Bugungi holat',"Bugun maktabga kelgani va darslardagi davomati",'calcheck','#2f9e44',pa.td,st?[st.t,st.k=='g'?'ok':st.k=='r'?'bad':st.k=='y'?'warn':'']:null],
+  ['suhbat','Farzand bilan muloqot',"Kunlik savol: suhbat, qiziqishlar va orzular",'heart','#d6336c',S.pp.tk?talkPage():'',S.pp.tk?(talkToday()?["Bugun javob berdingiz",'ok']:['Bugungi savol kutmoqda','warn']):null],
   ['xabar','Xabarnomalar',"Past baholar bo'yicha ogohlantirish va maqtovlar",'bell','#e8590c',pa.mk||(pa.td?`<div class="card empty"><span class="cl ph">${ic('check')}</span><div><b>Yangi xabarnoma yo'q</b><p class="mut">So'nggi kunlarda past baho qayd etilmagan.</p></div></div>`:''),nb?[nb+' ta ogohlantirish','bad']:pa.ng?[pa.ng+' ta maqtov','ok']:null],
   ['baho','Kunlik baholar',"Har kungi davomat va baholar jadvali",'clip','#1c7ed6',pv.daily],
   ['tahlil',"Ko'rsatkichlar tahlili","Oy davomida yaxshi va past natijalar",'chart','#7048e8',pv.crit],
@@ -455,11 +456,43 @@ function parentPaint(){const{pv}=S.pp||{};if(!pv){$('view').innerHTML='<div clas
  const me=(S.pp.pa||{}).me,st0=me?(me.k=='g'?'Keldi':me.k=='r'?'Kelmadi':me.k=='y'?'Sababli':'Belgilanmagan'):'';
  $('view').innerHTML=`<section class="pk-hero"><div class="pk-av">${esc(ini)}</div><div class="pk-who"><span>Ota-ona shaxsiy kabineti</span><h2>Assalomu alaykum${ME.full_name?', '+esc(ME.full_name):''}!</h2><p>${ic('user')}<b>${esc(pv.name)}</b> · ${esc(pv.cls)}</p></div>${ctl}</section>
  <div class="pk-kpi">${(st0?[['calcheck',st0,'Bugun maktabda']]:[]).concat(pv.kpi).map(([i,v,l])=>`<div><span class="pk-ki">${ic(i)}</span><b>${esc(v)}</b><small>${esc(l)}</small></div>`).join('')}</div>
+ ${S.pp.tk?talkCard():''}
  ${al.length?`<div class="pk-al">${ic('bell')}<span><b>Diqqat:</b> ${al.map(x=>`<button class="kr-lnk" data-ps="${x[0]}">${esc(x[1])} — ${esc(x[6][0])}</button>`).join(', ')}</span></div>`:''}
  ${PKG.map(([g,t,i])=>{const L=SV.filter(x=>PKB[x[0]]==g);return L.length?`<h3 class="pk-h">${ic(i)}${t}</h3><div class="pk-grid">${L.map(([k,t,d,i,co,,b])=>`<button class="pk-t" data-ps="${k}" style="--k:${co}"><span class="pk-ic">${ic(i)}</span><span class="pk-tt"><b>${esc(t)}</b><small>${esc(d)}</small>${bdg(b)}</span>${ic('arr')}</button>`).join('')}</div>`:''}).join('')}`}
+// Farzand bilan muloqot: ota-onaga har kuni bitta savol (modullar.suhbat). Javob bazada (parent_checkins),
+// jadval hali yaratilmagan bo'lsa — shu qurilmada saqlanadi.
+const TQ=[["Bugun farzandingiz bilan suhbatlashdingizmi?","Maktabda kuni qanday o'tganini, nimani yangi o'rganganini va nima uni xursand qilganini so'rang."],
+ ["Farzandingizning qiziqishlari haqida so'radingizmi?","U bo'sh vaqtida nima qilishni yaxshi ko'radi? Qaysi fan yoki mashg'ulot unga ko'proq yoqadi?"],
+ ["Farzandingiz kelajakda kim bo'lishni orzu qiladi?","Uning orzusi haqida gaplashing va bu yo'lda qanday qadamlar qo'yish mumkinligini birga o'ylab ko'ring."],
+ ["Bugun farzandingizni biror yutug'i uchun maqtadingizmi?","Kichik yutuqni ham e'tirof eting: maqtov bolaning o'ziga ishonchini oshiradi."],
+ ["Farzandingiz bilan kitob haqida gaplashdingizmi?","U hozir qaysi kitobni o'qiyapti? Kitobdagi qahramon haqida uning fikrini so'rang."],
+ ["Farzandingizning do'stlari haqida so'radingizmi?","Do'stlari kimlar, ular bilan nima qilishadi? Bu bolaning muhitini tushunishga yordam beradi."],
+ ["Bugun farzandingiz bilan telefonsiz vaqt o'tkazdingizmi?","Birga ovqatlanish yoki sayr qilish paytida telefonlarni chetga qo'yib, faqat bir-biringizni tinglang."],
+ ["Farzandingizni biror narsa xavotirga solmayaptimi?","Uni nima qiynayotganini so'rang va diqqat bilan tinglang — hukm qilmasdan, qo'llab-quvvatlab."]];
+const tqOf=d=>Math.floor(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10))/864e5)%TQ.length;
+async function talkLoad(){if(!ON('suhbat'))return null;const{data,error}=await sb.from('parent_checkins').select('day,q,answer').order('day',{ascending:false}).limit(60);
+ if(!error)return{db:1,rows:data||[]};let rows=[];try{rows=JSON.parse(localStorage.getItem(P+'suhbat')||'[]')}catch(e){}return{db:0,rows}}
+const talkToday=()=>(S.pp.tk.rows||[]).find(r=>r.day==nowT().d);
+function talkStreak(){const R={};(S.pp.tk.rows||[]).forEach(r=>R[r.day]=r.answer);const t=nowT().d;let d=Date.UTC(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10)),n=0;
+ if(R[t]!='ha')d-=864e5;for(;;d-=864e5){if(R[new Date(d).toISOString().slice(0,10)]=='ha')n++;else return n}}
+function talkWeek(){const R={};(S.pp.tk.rows||[]).forEach(r=>R[r.day]=r.answer);const t=nowT().d,b=Date.UTC(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10)),W=['Ya','Du','Se','Ch','Pa','Ju','Sh'];
+ return `<div class="tk-week">${[6,5,4,3,2,1,0].map(k=>{const x=new Date(b-k*864e5),dd=x.toISOString().slice(0,10),a=R[dd];return`<span class="${a=='ha'?'ha':a=='yoq'?'yoq':''}" title="${fd(dd)}"><i>${a=='ha'?'✓':a=='yoq'?'–':''}</i>${W[x.getUTCDay()]}</span>`}).join('')}</div>`}
+function talkCard(){const t=nowT().d,[qq,tip]=TQ[tqOf(t)],a=talkToday(),n=talkStreak();
+ const body=!a?`<p class="tk-tip">${esc(tip)}</p><div class="tk-btn"><button class="btn" data-talk="ha">${ic('check')}Ha, suhbatlashdim</button><button class="tab" data-talk="yoq">Bugun ulgurmadim</button></div>`
+  :a.answer=='ha'?`<p class="tk-ok">${ic('heart')}<span><b>Barakalla!</b> Farzandingizga ajratgan har bir daqiqa — uning kelajagiga sarmoya.${n>1?` Siz <b>${n} kun</b> ketma-ket suhbatlashdingiz.`:''}</span></p>`
+  :`<p class="tk-no">${ic('clock')}<span><b>Hech qisi yo'q.</b> Bugun kechqurun 10–15 daqiqa ajrating: telefonni chetga qo'yib, farzandingizdan kuni qanday o'tganini so'rang.</span></p>`;
+ return `<section class="card tk"><div class="tk-hd"><span class="pk-ic" style="--k:#d6336c">${ic('heart')}</span><div><span class="tk-k">Kunlik savol · ${nowT().lbl}</span><h3>${esc(qq)}</h3></div></div>${body}${talkWeek()}</section>`}
+function talkPage(){const R=S.pp.tk.rows||[],m=nowT().d.slice(0,7),M=R.filter(r=>String(r.day).startsWith(m)),h=M.filter(r=>r.answer=='ha').length;
+ return talkCard()+`<div class="card"><b>${ic('chart')}${MON[+m.slice(5)-1]} oyi</b><div class="kpi"><div><b>${h}</b>kun suhbatlashdingiz</div><div><b>${M.length-h}</b>kun ulgurmadingiz</div><div><b>${talkStreak()}</b>kun ketma-ket</div></div></div>
+ <div class="card"><b>${ic('star')}Farzand bilan suhbat uchun maslahatlar</b><ul class="tk-list">${TQ.map(([q,t])=>`<li><b>${esc(q)}</b><br><span class="mut">${esc(t)}</span></li>`).join('')}</ul></div>`}
+async function talkSave(a){const t=nowT().d,T=S.pp.tk,row={day:t,q:tqOf(t),answer:a};
+ if(T.db){const{error}=await sb.from('parent_checkins').upsert({student_id:ME.student_id||null,...row},{onConflict:'user_id,day'});if(error){flash(netMsg(error));return}}
+ T.rows=[row,...T.rows.filter(r=>r.day!=t)];if(!T.db)try{localStorage.setItem(P+'suhbat',JSON.stringify(T.rows.slice(0,60)))}catch(e){}
+ parentPaint()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-talk]');if(!b||!ME||ME.role!='parent'||b.disabled)return;b.disabled=true;talkSave(b.dataset.talk).finally(()=>{b.disabled=false})});
 // Xizmatlar bo'limlari: kundalik nazorat, o'quv natijalari, maktab xizmatlari
 const PKG=[[1,'Kundalik nazorat','calcheck'],[2,"O'quv natijalari",'chart'],[3,'Maktab xizmatlari','school']],
- PKB={bugun:1,xabar:1,baho:1,tahlil:2,fan:2,reyting:2,oylar:2,tolov:3,taom:3,kitob:3,farzand:3,fikr:3};
+ PKB={bugun:1,suhbat:1,xabar:1,baho:1,tahlil:2,fan:2,reyting:2,oylar:2,tolov:3,taom:3,kitob:3,farzand:3,fikr:3};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ps]');if(!b||!ME||ME.role!='parent')return;S.ps=b.dataset.ps||null;parentPaint()});
 // Ota-ona uchun: har bir ko'rsatkich bo'yicha oy davomida qancha yaxshi va qancha past baho olgani
 // Chegara: 10 ballikda 9–10 yaxshi, 0–4 past; 5 ballikda 5 yaxshi, 0–2 past; test 90%+ yaxshi, 40% dan past — past
