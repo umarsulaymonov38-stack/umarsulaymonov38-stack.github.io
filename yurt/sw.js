@@ -1,6 +1,6 @@
 // Maktab veb-ilovasi: har doim avval internetdan ENG YANGI versiya olinadi,
 // internet bo'lmasa — oxirgi saqlangan nusxa ochiladi. Ma'lumotlar (Supabase) keshlanmaydi.
-const CACHE = 'yurt-v4';
+const CACHE = 'yurt-v5';
 const CORE = ['./', 'index.html', 'sozlama.js', 'manifest.webmanifest', 'img/icon-192.png', 'img/kirish.jpg', '../platforma/app.js', '../platforma/app.css'];
 
 self.addEventListener('install', e => {

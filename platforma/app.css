@@ -296,3 +296,17 @@ footer svg{width:40px;height:25px}
 .tk-week .ha i{background:#2f9e44;border:0}.tk-week .yoq i{background:#f2b705;border:0}
 .tk-list{margin:8px 0 0;padding-left:20px;display:grid;gap:10px}
 @media (max-width:560px){.tk h3{font-size:16.5px}.tk-btn .btn,.tk-btn .tab{flex:1;justify-content:center}.tk-week{gap:4px;justify-content:space-between}.tk-week i{width:28px;height:28px}}
+/* Admin: Boshqaruv paneli va ota-onalar ulanishi */
+.ad-hero .pk-av{color:var(--nv)}.ad-hero .pk-av .i{width:30px;height:30px}
+.ad-cls{display:flex;flex-direction:column;gap:8px}
+.pc-pc{margin-left:auto;font-size:22px;font-weight:800;color:var(--ink)}
+.pc-bar{display:flex;height:9px;margin:6px 0 4px;border-radius:99px;overflow:hidden;background:color-mix(in srgb,var(--bad) 22%,var(--zb))}
+.pc-bar i{display:block;height:100%}.pc-bar .k{background:#2f9e44}.pc-bar .w{background:#f2b705}
+.pc-t td,.pc-t th{text-align:center}.pc-t td.l,.pc-t th.l{text-align:left}
+.pc-lg{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mut)}
+.pc-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-left:6px;background:color-mix(in srgb,var(--bad) 22%,var(--zb))}
+.pc-lg i.k{background:#2f9e44}.pc-lg i.w{background:#f2b705}
+.pc-d{margin-top:10px}.pc-act{margin:8px 0}
+.pc-d td .tab{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;text-decoration:none}
+.pc-info p{margin:8px 0}
+.pk-who p{flex-wrap:wrap}
