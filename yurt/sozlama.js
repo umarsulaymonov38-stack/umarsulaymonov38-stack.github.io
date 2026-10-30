@@ -29,7 +29,7 @@ window.MAKTAB = {
   // Modullar: false — o'chirilgan (bo'lim ko'rinmaydi). Yozilmagani — yoqilgan.
   modullar: {
     ota_ona: true,            // Ota-ona kabineti va ro'yxatdan o'tish
-    suhbat: true,             // Ota-onaga kunlik savol: farzand bilan suhbat (sql/02-ota-ona-suhbat.sql)
+    suhbat: true,             // Ota-onaga kunlik savolnoma: farzand bilan suhbat (platforma/sql/03-ota-ona-savolnoma.sql)
     tolov: true,              // To'lovlar va to'lov eslatmalari
     sms: true,                // Avtomatik SMS
     taomnoma: true,           // Kunlik taomnoma

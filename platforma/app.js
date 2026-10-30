@@ -217,7 +217,8 @@ async function fbParent(){const{data,error}=await sb.from('feedback').select('id
  <select class="fld" id="fbk">${FBC.map(x=>`<option>${x}</option>`).join('')}</select><textarea class="fld" id="fbt" rows="4" maxlength="2000" placeholder="Fikringizni yozing…"></textarea>
  <label class="ck"><input type="checkbox" id="fba">Ismim ko'rsatilmasin</label><br><button class="btn" id="fbs">${ic('msg')}Yuborish</button>
  ${data.length?`<p style="margin:16px 0 0"><b>Siz yuborgan xabarlar</b></p>${data.map(f=>`<div class="fb"><div class="fbh"><span class="rl">${esc(f.category)}</span><span class="mut">${fdt(f.created_at)}</span></div><div class="fbb">${esc(f.body)}</div></div>`).join('')}`:''}</div>`}
-async function fbView(){const r=mr(S.month);let d;
+async function fbView(){const ckh=ON('suhbat')?await ckStats().catch(()=>''):'';return ckh+await fbView0()}
+async function fbView0(){const r=mr(S.month);let d;
  try{d=await all(()=>sb.from('feedback').select('*').gte('created_at',r.a+'T00:00:00+05:00').lte('created_at',r.b+'T23:59:59+05:00').order('created_at',{ascending:false}))}
  catch(e){flash('');return `<div class="card"><b>${ic('msg')}Fikr-mulohazalar</b><p class="mut">Bo'limni ochib bo'lmadi: admin Supabase'da <b>sql/yangilanish-3.sql</b> faylini ishga tushirishi kerak.</p><p class="mut">Sabab: ${esc((e&&(e.message||e.code))||e)}</p></div>`}
  const by=new Map();d.forEach(f=>{const k=f.class_id||0;if(!by.has(k))by.set(k,[]);by.get(k).push(f)});
@@ -251,9 +252,12 @@ function chips(){
  const on=el.querySelector('.chip.on');if(on)on.scrollIntoView({block:'nearest',inline:'nearest'})}
 async function render(){
  flush();const tk=++S.rt;if(!ME)return;
- if(ME.role=='parent'){$('view').innerHTML='<div class="ld"><i class="spin"></i>Yuklanmoqda…</div>';const pv=await parentView().catch(()=>null);
-  const[pa,hb,hf,tk2]=await Promise.all([parentAll().catch(()=>null).then(x=>x||payInfo().then(r=>({pr:r.b,ph:r.t})).catch(()=>({}))),BOOKS?parentBooks().catch(()=>''):'',ON('fikr')?fbParent().catch(()=>''):'',talkLoad().catch(()=>null)]);
-  if(tk==S.rt){S.pp={pv,pa,hb,hf,tk:tk2};parentPaint()}return}
+ if(ME.role=='parent'){$('view').innerHTML='<div class="ld"><i class="spin"></i>Yuklanmoqda…</div>';
+  const[X,P,hf,hb,ck]=await Promise.all([parentData().catch(()=>null),parentAll().catch(()=>null),ON('fikr')?fbParent().catch(()=>''):'',BOOKS?parentBooks().catch(()=>''):'',S.pv?'':ckCard().catch(()=>'')]);
+  let html;if(!X&&!P)html='<div class="card">Ma\'lumotni o\'qib bo\'lmadi. Sahifani yangilang.</div>';
+  else if(S.pv)html=pSection(S.pv,X,P,'',hf,hb);
+  else{const pi=P||(ON('tolov')?await payInfo().catch(()=>({b:'',t:''})):{b:'',t:''});html=X?pHome(X,P,'',ck)+(P?'':pi.b+pi.t):pi.b+pi.t+hf}
+  if(tk==S.rt)$('view').innerHTML=html;return}
  if(ME.role=='admin'&&(S.ah||S.as)){await adminPage(tk);return}
  const A=ME.role=='admin',c0=CL.find(x=>x.id==S.cls)||{},rp=c0.kind=='rep';setMode(c0);
  // Admin bo'limlari: modul o'chirilgan bo'lsa, bo'lim ko'rinmaydi
@@ -509,6 +513,83 @@ async function parentView(){const mm=S.month.split('-'),a=S.month+'-01',b=S.mont
   if(ON('taomnoma'))P.menu=`<div class="card"><b>${ic('food')}Kunlik taomlanish (retsept)</b>${Object.keys(days).length?Object.keys(days).map(d=>`<p><b>${d.slice(8)}.${d.slice(5,7)}</b></p>${days[d].map(m=>`<div class="top">${m.photo?`<img class="cl" style="height:64px;width:64px;object-fit:cover;border-radius:10px" src="${m.photo}">`:''}<div><b>${esc(m.meal)}</b><br><span style="white-space:pre-line">${esc(m.name)}</span></div></div>`).join('')}`).join(''):'<p class="mut">Taomnoma hali kiritilmagan.</p>'}</div>`;return P}
  const g=!!c.grp;
  P.daily=`<div class="card"><b>Davomat${g?' va baholar':''} — ${mn}</b><div class="wrap"><table><tr><th>Sana</th><th>Davomat</th>${g?'<th>Uyga vazifa</th><th>Sinfdagi faollik</th><th>Tartib-intizom</th>':''}</tr>${rows.length?rows.map(x=>`<tr><td>${dd(x)}</td><td>${attIc(x)}</td>${g?`<td>${x.hw??'—'}</td><td>${x.activity??'—'}</td><td>${x.behavior??'—'}</td>`:''}</tr>`).join(''):'<tr><td colspan="5" class="mut">Bu oy ma\'lumot yo\'q</td></tr>'}</table></div></div>`;return P}
+// Ota-ona profili Samarqand Yuksalish maktabi platformasi bilan bir xil (faqat ranglar maktabniki — index.html dagi --nv/--ac).
+// Ota-ona profili: farzand ma'lumotlari bo'limlarga ajratilgan (bosh sahifadagi xizmatlar va har bir bo'lim uchun)
+async function parentData(){const mm=S.month.split('-'),a=S.month+'-01',b=S.month+'-'+String(new Date(Date.UTC(+mm[0],+mm[1],0)).getUTCDate()).padStart(2,'0');
+ const[me,kids]=await Promise.all([q(sb.from('students').select('full_name,class_id').eq('id',ME.student_id).single()),q(sb.rpc('my_kids'))]);
+ const c=CL.find(x=>x.id==me.class_id)||{},kind=c.kind=='rep'?'r':(c.grp||(c.grade||0)>7)?'u':'p';setMode(c);S.kc=c;S.kn=me.full_name;
+ const X={c,kind,me,kids,s:{}},dd=x=>x.day.slice(8)+'.'+x.day.slice(5,7),none='<tr><td colspan="9" class="mut">Bu oy ma\'lumot yo\'q</td></tr>';
+ X.head=`<div class="card"><div class="top"><b class="cn2">${esc(me.full_name)}</b><span class="mut">${esc(clsLbl(c))}${c.kind=='rep'?' (Repetitor)':''}</span><span style="margin-left:auto"><b>Oy:</b> <input type="month" id="mo" value="${S.month}"></span></div></div>`;
+ if(kind=='r'){
+  const[rk,rows]=await Promise.all([q(sb.rpc('rep_my_rank',{p_from:a,p_to:b})),q(sb.from('rep_daily').select('*').eq('student_id',ME.student_id).gte('day',a).lte('day',b).order('day'))]);const r=rk&&rk[0];
+  X.baho=`<div class="card"><div class="kpi"><div><b>${r?r.present+'/'+r.days:'—'}</b>${ic('cal')}davomat</div><div><b>${r&&r.avg_hw!=null?r.avg_hw:'—'}</b>${ic('clip')}uyga vazifa</div><div><b>${r&&r.avg_test!=null?r.avg_test:'—'}</b>${ic('flask')}test</div><div><b>${r?r.rank+'/'+r.size:'—'}</b>${ic('trophy')}guruhda o'rin</div></div></div>
+  <div class="card"><b>${ic('cal')}Kunlik davomat, uyga vazifa va test</b><div class="wrap"><table><tr><th>Sana</th><th>Davomat</th><th>Uyga vazifa</th><th>Test</th></tr>${rows.length?rows.map(x=>`<tr><td>${dd(x)}</td><td>${attIc(x)}</td><td>${x.hw??'—'}</td><td class="tot">${x.test??'—'}</td></tr>`).join(''):none}</table></div></div>`;
+  X.krit=critCard(c,rows);X.cnt=critCount(c,rows,[]);X.s.baho=r?`Guruhda ${r.rank}-o'rin`:'';return X}
+ const[rk,rows]=await Promise.all([q(sb.rpc('my_task_rank',{p_from:a,p_to:b})),q(sb.from('daily_scores').select('*').eq('student_id',ME.student_id).gte('day',a).lte('day',b).order('day'))]);const r=rk&&rk[0];
+ const sub=await sb.rpc('parent_subjects',{p_from:a,p_to:b}).then(r=>(r.data||[]).filter(x=>x.student_id==ME.student_id)).catch(()=>[]),g=!!c.grp;
+ X.baho=`<div class="card"><div class="kpi"><div><b>${r?r.total:0}</b>jami ball</div><div><b>${r?r.class_rank+'/'+r.class_size:'—'}</b>${ic('school')}sinfda o'rin</div><div><b>${r?r.school_rank+'/'+r.school_size:'—'}</b>${ic('trophy')}${kind=='p'?"1–7-sinflar orasida":"reytingda"} o'rin</div></div></div>`+
+  (kind=='p'?`<div class="card"><b>${ic('clip')}Kunlik vazifalar</b><div class="wrap"><table><tr><th>Sana</th>${th()}<th>Jami</th></tr>${rows.length?rows.map(x=>`<tr><td>${dd(x)}</td>${CR.map(k=>`<td>${k.c=='att'?attIc(x):(x[k.c]??'—')}</td>`).join('')}<td class="tot">${sum(x)}</td></tr>`).join(''):none}</table></div></div>`
+  :`<div class="card"><b>${ic('cal')}Davomat${g?' va baholar':''}</b><div class="wrap"><table><tr><th>Sana</th><th>Davomat</th>${g?'<th>Uyga vazifa</th><th>Sinfdagi faollik</th><th>Tartib-intizom</th>':''}</tr>${rows.length?rows.map(x=>`<tr><td>${dd(x)}</td><td>${attIc(x)}</td>${g?`<td>${x.hw??'—'}</td><td>${x.activity??'—'}</td><td>${x.behavior??'—'}</td>`:''}</tr>`).join(''):none}</table></div></div>`);
+ X.s.baho=r?`${r.total} ball · sinfda ${r.class_rank}-o'rin`:'';
+ X.krit=critCard(c,rows,sub);X.cnt=critCount(c,rows,sub);X.fan=await subjCard(a,b).catch(()=>'');
+ const gr=sub.filter(x=>x.grade!=null);X.s.fan=gr.length?`O'rtacha baho: ${Math.round(gr.reduce((q,x)=>q+ +x.grade,0)/gr.length*10)/10}`:'';
+ if(!g){X.tanga=await coinCard(rows,a,b).catch(()=>'');X.oylar=await kidMonths().catch(()=>'');
+  const t=rows.reduce((q,x)=>q+sumBy(x,crOf(c)),0),cs=coinState(t,1);X.s.tanga=cs.won?`${cs.won[0]} tanga yutildi`:cs.nx?`${cs.nx[0]}gacha ${cs.prog}%`:''}
+ if(kind=='p'&&ON('taomnoma')){const t=nowT().d,menu=await q(sb.from('menu').select('id,day,meal,name').gte('day',t).order('day').order('id').limit(30)).catch(()=>[]);await menuPh(menu);const days={};menu.forEach(m=>(days[m.day]=days[m.day]||[]).push(m));
+  X.menu=`<div class="card"><b>${ic('food')}Kunlik taomlanish (retsept)</b>${Object.keys(days).length?Object.keys(days).map(d=>`<p><b>${d.slice(8)}.${d.slice(5,7)}</b></p>${days[d].map(m=>`<div class="top">${m.photo?`<img class="cl" style="height:64px;width:64px;object-fit:cover;border-radius:10px" src="${m.photo}">`:''}<div><b>${esc(m.meal)}</b><br><span style="white-space:pre-line">${esc(m.name)}</span></div></div>`).join('')}`).join(''):'<p class="mut">Taomnoma hali kiritilmagan.</p>'}</div>`;
+  X.s.menu=menu.length?`Bugundan ${Object.keys(days).length} kunlik`:''}
+ return X}
+// Ko'rsatkichlar bo'yicha yaxshi va past baholar soni (bosh sahifadagi belgilar uchun)
+function critCount(c,rows,sub){let g=0,b=0;const add=(v,m)=>{const x=gb(+v,m);if(x>0)g++;if(x<0)b++};
+ critDefs(c).forEach(([k,t,m])=>rows.forEach(r=>{if(r[k]!=null)add(r[k],m)}));(sub||[]).forEach(r=>[['grade',5],['hw',5],['activity',5]].forEach(([k,m])=>{if(r[k]!=null)add(r[k],m)}));return{g,b}}
+// Admin: ota-onalar savolnomasi umumiy natijasi
+async function ckStats(){const{data,error}=await sb.rpc('checkin_stats',{p_days:14});if(error||!data||!data.length)return '';
+ return `<div class="card"><b>${ic('heart')}Ota-onalar kunlik savolnomasi (oxirgi 14 kun)</b><p class="mut">Har kuni nechta ota-ona javob bergani va har bir savolga «Ha» deganlar foizi. Kim qanday javob bergani ko'rsatilmaydi.</p>
+ <div class="wrap"><table><tr><th>Sana</th><th>Javob bergan</th><th>Suhbatlashgan</th><th>Kunini so'ragan</th><th>Qiziqishlari</th><th>Orzulari</th></tr>${data.map(x=>`<tr><td>${fd2(String(x.day))}</td><td class="tot">${x.javob}</td><td>${x.talk}%</td><td>${x.kun}%</td><td>${x.qiziqish}%</td><td>${x.orzu}%</td></tr>`).join('')}</table></div></div>`}
+// Kunlik savolnoma: ota-ona har kuni farzandi bilan muloqot qilganini belgilaydi (bugungi maslahat va ketma-ket kunlar bilan)
+const CKQ=[['q_talk',"Bugun farzandingiz bilan kamida 15 daqiqa suhbatlashdingizmi?"],['q_day',"Kuni va darslari qanday o'tganini so'radingizmi?"],
+ ['q_interest',"Uning qiziqishlari (sevimli mashg'uloti, do'stlari) haqida gaplashdingizmi?"],['q_dream',"Kelajakdagi orzulari va maqsadlari haqida qiziqdingizmi?"]];
+const CKT=["«Bugun nimani yangi o'rganding?» deb so'rang — javobini oxirigacha tinglang.","Kechki ovqatni birga, telefonlarsiz o'tkazing.",
+ "«Katta bo'lsang kim bo'lmoqchisan? Nega?» — orzusini qo'llab-quvvatlang.","Bugun uni nimadir uchun albatta maqtang.",
+ "«Eng yaqin do'sting kim? U bilan nima qilishni yoqtirasan?» deb so'rang.","Birga 15 daqiqa kitob o'qing yoki o'qiganini aytib bersin.",
+ "«Bugun seni nima xursand qildi, nima xafa qildi?» deb so'rang.","Uning sevimli mashg'uloti bilan birga shug'ullaning.",
+ "Kelajakdagi kasblar haqida birga video ko'ring yoki gaplashing.","Uy vazifasini birga ko'rib chiqing — tanqid emas, yordam bering.",
+ "«Senga qanday yordam bera olaman?» deb so'rang.","Dam olish kunini birga rejalashtiring — fikrini so'rang."];
+async function ckCard(){if(!ON('suhbat'))return '';const t=nowT().d,{data,error}=await sb.from('parent_checkin').select('day,q_talk,q_day,q_interest,q_dream').order('day',{ascending:false}).limit(40);if(error)return '';
+ const today=data.find(x=>x.day==t),tip=CKT[Math.floor(Date.UTC(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10))/864e5)%CKT.length];
+ let st=0;for(let i=0;i<40;i++){const d=new Date(Date.UTC(+t.slice(0,4),+t.slice(5,7)-1,+t.slice(8,10)-i)).toISOString().slice(0,10),r=data.find(x=>x.day==d);if(r&&r.q_talk)st++;else if(i>0||r)break}
+ if(today){const y=CKQ.filter(([k])=>today[k]).length;return `<div class="card ckd"><div class="top"><span class="pti" style="--c:#2f9e44">${ic('heart')}</span><div><b>Bugungi suhbat belgilandi — ${y} / 4</b><br><span class="mut">${st?`🔥 Ketma-ket <b>${st}</b> kun farzandingiz bilan suhbatlashdingiz`:"Ertaga albatta farzandingiz bilan suhbatlashing"}</span></div></div><p class="cktip">💡 <b>Bugungi maslahat:</b> ${tip}</p></div>`}
+ S.ck=S.ck||{};return `<div class="card ckq"><div class="top"><span class="pti" style="--c:#e8590c">${ic('heart')}</span><div><b>Kunlik savol: farzandingiz bilan muloqot</b><br><span class="mut">Bugungi kun haqida 4 ta qisqa savol — 10 soniya</span></div></div>
+ ${CKQ.map(([k,q])=>`<div class="ckr"><span>${q}</span><span class="ckb"><button class="tab ckx ${S.ck[k]===true?'on':''}" data-k="${k}" data-v="1">Ha</button><button class="tab ckx ${S.ck[k]===false?'on no':''}" data-k="${k}" data-v="0">Yo'q</button></span></div>`).join('')}
+ <button class="btn" id="ckSend">${ic('check')}Javobni yuborish</button><p class="cktip">💡 <b>Bugungi maslahat:</b> ${tip}</p></div>`}
+// Bosh sahifa (my.gov.uz uslubida): farzand kartochkasi, muhim xabarlar va xizmatlar
+const PSEC={bugun:['clock','#2f9e44',"Bugungi davomat"],baho:['clip','#1c7ed6',"Kunlik vazifalar va baholar"],krit:['chart','#7048e8',"Ko'rsatkichlar"],
+ fan:['layers','#0c8599',"Fan baholari"],tanga:['award','#d4a017',"Tangalar"],oylar:['cal','#e8590c',"Oylik natijalar"],tolov:['card','#c2410c',"To'lovlar"],
+ farzand:['users','#495057',"Farzandlarim"],menu:['food','#2b8a3e',"Taomnoma"],fikr:['msg','#1971c2',"Fikr-mulohaza"],bildirish:['bell','#f76707',"Bildirishnomalar"],kitob:['books','#5c7cfa',"Darsliklar"]};
+const LFS='<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2l1.6 3.6 3-1.4-.8 4 3.7-.6-1.9 3.3 3.4 1.6-3.6 1.4 1.4 3.1-4-1L14 20h-1.2v2h-1.6v-2H10l-.8-4-4 1 1.4-3.1L3 12.5l3.4-1.6-1.9-3.3 3.7.6-.8-4 3 1.4z"/></svg>';
+function leaves(){const m=new Date().getMonth();if(m<8||m>10)return'';const C=['#f2b705','#f59f00','#e8590c','#d9480f','#fcc419','#c2410c'];let h='';
+ for(let i=0;i<16;i++){const l=(i*67+5)%100,s=16+(i*7)%14,d=7+(i*5)%6,w=-((i*1.7)%9),x=((i%2?1:-1)*(20+(i*13)%50)),r=(i%2?1:-1)*(180+(i*37)%240);
+  h+=`<i style="left:${l}%;--s:${s}px;--d:${d}s;--w:${w.toFixed(1)}s;--x:${x}px;--r:${r}deg;--c:${C[i%C.length]}">${LFS}</i>`}
+ return`<div class="lvs" aria-hidden="true">${h}</div>`}
+function pHome(X,P,hp,ck){const me=X.me,ini=String(me.full_name||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase(),
+  g=P&&P.G?P.G.find(x=>x.en.some(e=>e.id==ME.student_id)):null,st=g?g.en.map(e=>({e,a:enAtt(e)})).filter(x=>x.a):[],
+  pushOn=/Yoqilgan\./.test(hp),bad=(X.cnt||{}).b||0,good=(X.cnt||{}).g||0,nl=P?P.nl||0:0;
+ const kidSel=X.kids.length>1?`<select class="fld" id="kid" style="width:auto;max-width:100%">${X.kids.map(k=>`<option value="${k.id}" ${k.id==ME.student_id?'selected':''}>${esc(k.full_name)} — ${esc(cname(k.class_id))}</option>`).join('')}</select>`:'';
+ const hero=`<div class="phero">${leaves()}<div class="pav">${esc(ini)}</div><div class="phi"><div class="pnm">${esc(me.full_name)}</div><div class="pkl">${esc(clsLbl(X.c))}${X.c.kind=='rep'?' · Repetitor':''}</div>
+  <div class="pst">${st.length?st.map(x=>`<span class="pch ${x.a.k||''}">${x.a.i} ${x.e.main?'':esc(x.e.cls)+': '}${x.a.t}</span>`).join(''):'<span class="pch">Bugun hali belgilanmagan</span>'}</div>${kidSel?`<div style="margin-top:8px">${kidSel}</div>`:''}</div></div>`;
+ const al=[bad?`<button class="pal r" data-pv="krit">${ic('shield')}<span><b>${bad} ta past natija</b> — ko'rish</span></button>`:'',
+  nl?`<button class="pal r" data-pv="tolov">${ic('card')}<span><b>${nl} oy to'lov kechikmoqda</b> — batafsil</span></button>`:'',
+  good?`<button class="pal g" data-pv="krit">${ic('star')}<span><b>${good} ta yaxshi natija</b> — tabriklaymiz!</span></button>`:''].join('');
+ const T=[['bugun',st.length?st[0].a.t:''],['baho',X.s.baho],['krit',bad?`⚠️ ${bad} ta past baho`:good?`👍 ${good} ta yaxshi baho`:''],['fan',X.s.fan],
+  X.tanga!=null?['tanga',X.s.tanga]:null,X.oylar!=null?['oylar','Har oy alohida']:null,P&&ON('tolov')&&(P.pr||P.ph)?['tolov',nl?`❌ ${nl} oy to'lanmagan`:"✅ Qarzdorlik yo'q"]:null,
+  P&&P.G?['farzand',`${P.G.length} nafar`]:null,X.menu?['menu',X.s.menu]:null,ON('fikr')?['fikr','Taklif va murojaat']:null,hp?['bildirish',pushOn?'✅ Yoqilgan':"⛔ O'chiq"]:null,BOOKS?['kitob','']:null].filter(Boolean);
+ return hero+(al?`<div class="pals">${al}</div>`:'')+(ck||'')+`<div class="psec">Xizmatlar</div><div class="ptiles">${T.map(([k,sub])=>{const[i,c,t]=PSEC[k];
+  return`<button class="ptile" data-pv="${k}" style="--c:${c}"><span class="pti">${ic(i)}</span><b>${t}</b>${sub?`<small>${esc(sub)}</small>`:''}</button>`}).join('')}</div>`}
+function pSection(k,X,P,hp,hf,hb){const[i,c,t]=PSEC[k]||['school','#16213d',''],op=h=>String(h||'').replace(/<details class="card fold/g,'<details open class="card fold'),
+  none='<div class="card"><p class="mut">Hozircha ma\'lumot yo\'q.</p></div>',head=X?X.head:'';
+ const body={bugun:P?P.td:'',baho:head+(X?X.baho:''),krit:head+((X&&X.krit)||none)+(P?P.mk:''),fan:head+((X&&X.fan)||'<div class="card"><p class="mut">Bu oy fan o\'qituvchilari hali baho qo\'ymagan.</p></div>'),
+  tanga:head+((X&&X.tanga)||none),oylar:(X&&X.oylar)||none,tolov:P?op(P.pr)+op(P.ph):'',farzand:P?op(P.ov):'',menu:(X&&X.menu)||none,fikr:hf,bildirish:hp,kitob:hb}[k]||none;
+ return `<div class="psh" style="--c:${c}"><button class="tab pback">← Orqaga</button><span class="pti">${ic(i)}</span><b>${t}</b></div>${body||none}`}
 // Ota-ona shaxsiy kabineti (my.gov.uz uslubida): profil, asosiy ko'rsatkichlar va xizmatlar katalogi.
 // Har bir xizmat o'z belgisi bilan alohida kartochka; bosilganda o'sha bo'lim ochiladi (S.ps), qayta yuklanmaydi.
 function pkSv(){const{pv={},pa={},hb='',hf=''}=S.pp||{};
@@ -826,3 +907,14 @@ addEventListener('appinstalled',()=>{IP=null;$('inst').style.display='none';flas
 document.addEventListener('click',async e=>{if(!e.target.closest('#inst')||!IP)return;IP.prompt();const r=await IP.userChoice;if(r.outcome=='accepted')$('inst').style.display='none';IP=null});
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 setInterval(tick,1000);tick();boot();
+
+// Ota-ona profili: xizmatlar (bo'limlar), «Orqaga», kunlik savolnoma
+document.addEventListener('click',async e=>{const t=e.target.closest('[data-pv],.pback,.ckx,#ckSend');if(!t||!ME||ME.role!='parent')return;
+ if(t.dataset.pv){S.pv=t.dataset.pv;try{history.pushState({pv:S.pv},'')}catch(_){}scrollTo(0,0);render();return}
+ if(t.classList.contains('pback')){if(history.state&&history.state.pv)history.back();else{S.pv=null;render()}return}
+ if(t.classList.contains('ckx')){(S.ck=S.ck||{})[t.dataset.k]=t.dataset.v=='1';t.parentNode.querySelectorAll('.ckx').forEach(b=>b.classList.remove('on','no'));t.classList.add('on');if(t.dataset.v=='0')t.classList.add('no');return}
+ if(t.id=='ckSend'){const a=S.ck||{};if(CKQ.some(([k])=>a[k]==null)){flash("Iltimos, 4 ta savolning hammasiga javob bering");return}
+  t.disabled=true;const{error}=await sb.from('parent_checkin').upsert({user_id:ME.id,day:nowT().d,...a},{onConflict:'user_id,day'});t.disabled=false;
+  if(error){flash(/parent_checkin/.test(error.message)?"Savolnoma hali yoqilmagan (admin platforma/sql/03-ota-ona-savolnoma.sql ni ishga tushirishi kerak)":netMsg(error));return}
+  S.ck={};flash(a.q_talk?"✅ Rahmat! Farzandingiz bilan har kuni suhbatlashing.":"Rahmat! Bugun kechqurun farzandingiz bilan 15 daqiqa suhbatlashib ko'ring.");render()}});
+addEventListener('popstate',e=>{if(ME&&ME.role=='parent'){S.pv=(e.state&&e.state.pv)||null;render()}});
