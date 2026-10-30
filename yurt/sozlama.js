@@ -29,6 +29,7 @@ window.MAKTAB = {
   // Modullar: false — o'chirilgan (bo'lim ko'rinmaydi). Yozilmagani — yoqilgan.
   modullar: {
     ota_ona: true,            // Ota-ona kabineti va ro'yxatdan o'tish
+    bildirishnoma: true,      // Ota-ona telefoniga bepul push-xabar: davomat belgilanganda (yurt/sql/07-bildirishnoma.sql)
     suhbat: true,             // Ota-onaga kunlik savolnoma: farzand bilan suhbat (platforma/sql/03-ota-ona-savolnoma.sql)
     tolov: true,              // To'lovlar va to'lov eslatmalari
     sms: true,                // Avtomatik SMS

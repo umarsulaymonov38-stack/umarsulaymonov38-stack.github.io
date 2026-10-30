@@ -55,7 +55,7 @@ const th=()=>CR.map(x=>`<th title="${x.k}"><span class="ic">${ic(x.i)}</span>${x
 const cname=id=>(CL.find(c=>c.id==id)||{}).name||'';
 // Kirish oynasi: chapda maktab rasmi (barcha rollar uchun bitta fon), o'ngda rol tanlash va forma.
 // S.lt: 0 — ota-ona kirishi, 1 — ota-ona ro'yxatdan o'tishi, 2 — admin, 3 — o'qituvchi
-function loginView(){$('out').style.display='none';document.body.classList.remove('in');$('chips').innerHTML='';$('side').innerHTML='';document.body.classList.remove('hs-side');
+function loginView(){{const g=document.getElementById('pgate');if(g)g.remove()}$('out').style.display='none';document.body.classList.remove('in');$('chips').innerHTML='';$('side').innerHTML='';document.body.classList.remove('hs-side');
  const K=M.kirish||{},U=K.ustki,OT=ON('ota_ona'),L=!OT&&S.lt<2?3:S.lt||0,tab=L==1?0:L;
  const F=(id,lb,ty,icn,ph,ac)=>`<label class="kr-f"><span>${lb}</span>${ic(icn)}<input id="${id}" type="${ty}" placeholder="${ph}" autocomplete="${ac}"${ty=='tel'?' inputmode="tel"':''}>${ty=='password'?`<button type="button" class="kr-eye" data-eye="${id}" aria-label="Parolni ko'rsatish">${ic('eye')}</button>`:''}</label>`;
  const R=[[0,'users','Ota-ona'],[3,'cap',"O'qituvchi"],[2,'shield','Admin']].filter(r=>OT||r[0]);
@@ -253,11 +253,11 @@ function chips(){
 async function render(){
  flush();const tk=++S.rt;if(!ME)return;
  if(ME.role=='parent'){$('view').innerHTML='<div class="ld"><i class="spin"></i>Yuklanmoqda…</div>';
-  const[X,P,hf,hb,ck]=await Promise.all([parentData().catch(()=>null),parentAll().catch(()=>null),ON('fikr')?fbParent().catch(()=>''):'',BOOKS?parentBooks().catch(()=>''):'',S.pv?'':ckCard().catch(()=>'')]);
+  const[X,P,hf,hb,ck,hp]=await Promise.all([parentData().catch(()=>null),parentAll().catch(()=>null),ON('fikr')?fbParent().catch(()=>''):'',BOOKS?parentBooks().catch(()=>''):'',S.pv?'':ckCard().catch(()=>''),pushCard().catch(()=>'')]);
   let html;if(!X&&!P)html='<div class="card">Ma\'lumotni o\'qib bo\'lmadi. Sahifani yangilang.</div>';
-  else if(S.pv)html=pSection(S.pv,X,P,'',hf,hb);
-  else{const pi=P||(ON('tolov')?await payInfo().catch(()=>({b:'',t:''})):{b:'',t:''});html=X?pHome(X,P,'',ck)+(P?'':pi.b+pi.t):pi.b+pi.t+hf}
-  if(tk==S.rt)$('view').innerHTML=html;return}
+  else if(S.pv)html=pSection(S.pv,X,P,hp,hf,hb);
+  else{const pi=P||(ON('tolov')?await payInfo().catch(()=>({b:'',t:''})):{b:'',t:''});html=X?pHome(X,P,hp,ck)+(P?'':pi.b+pi.t):pi.b+pi.t+hf}
+  if(tk==S.rt){$('view').innerHTML=html;pushGate().catch(()=>{})}return}
  if(ME.role=='admin'&&(S.ah||S.as)){await adminPage(tk);return}
  const A=ME.role=='admin',c0=CL.find(x=>x.id==S.cls)||{},rp=c0.kind=='rep';setMode(c0);
  // Admin bo'limlari: modul o'chirilgan bo'lsa, bo'lim ko'rinmaydi
@@ -671,6 +671,42 @@ function critHtml(c,rows,sub){const dd=x=>{const d=String(x.d||x.day||'');return
  ${best.length?`<p style="margin:8px 0 4px"><b style="color:var(--ok)">👍 Yaxshi natijalar:</b> ${best.slice(0,4).map(x=>`<b>${esc(x.t)}</b> (${x.g.length} marta)`).join(', ')}</p>`:''}
  ${bad.length?`<p style="margin:4px 0 8px"><b style="color:var(--bad)">⚠️ E'tibor bering:</b> ${bad.slice(0,4).map(x=>`<b>${esc(x.t)}</b> (${x.b.length} marta past: ${x.b.slice(-4).map(y=>dd(y)+' — '+y.v).join(', ')})`).join('; ')}</p>`:'<p style="margin:4px 0 8px;color:var(--ok)">✅ Shu oyda past baho yo\'q.</p>'}
  <div class="wrap"><table style="min-width:0"><tr><th class="l">Ko'rsatkich</th><th>O'rtacha</th><th>👍 Yaxshi</th><th>⚠️ Past</th></tr>${R.map(x=>`<tr><td class="l">${esc(x.t)} <span class="mut">(0–${x.m})</span></td><td class="tot">${x.av}</td><td>${x.g.length?`<b style="color:var(--ok)">${x.g.length}</b>`:'—'}</td><td>${x.b.length?`<b style="color:var(--bad)">${x.b.length}</b>`:'—'}</td></tr>`).join('')}</table></div></div>`}
+// Bildirishnomalar (Samarqand Yuksalish platformasi bilan bir xil). Server: maktab Supabase'idagi push-yubor funksiyasi.
+// Push-bildirishnoma (bepul): ota-ona telefonida farzandi davomati belgilanganda (keldi / kelmadi) xabar chiqadi.
+// iPhone'da faqat ilova «Bosh ekranga qo'shilgan» bo'lsa ishlaydi (iOS 16.4+).
+const PUSH_FN=API+'/functions/v1/push-yubor',pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window,
+ isIOS=()=>/iPhone|iPad|iPod/.test(navigator.userAgent),b64k=s=>{const p='='.repeat((4-s.length%4)%4),r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(r,c=>c.charCodeAt(0))};
+async function pushSub(){if(!pushOK())return null;const r=await navigator.serviceWorker.getRegistration();return r?r.pushManager.getSubscription():null}
+async function pushCard(){if(!ON('bildirishnoma'))return '';const h=(t,b)=>`<div class="card"><b>${ic('msg')}Bildirishnomalar</b>${t}${b||''}</div>`;
+ if(isIOS()&&!standalone())return h(`<p>Farzandingiz davomati belgilanganda (keldi / kelmadi) telefoningizga <b>bepul xabar</b> keladi. Buning uchun avval ilovani o'rnating: Safari'da <b>«Ulashish» (yoki «•••») → «На экран «Домой»»</b>, so'ng ilovani bosh ekrandan ochib, shu tugmani bosing.</p>`);
+ if(!pushOK())return h(`<p class="mut">Bu brauzer bildirishnomani qo'llamaydi. Chrome yoki Safari'da ilova qilib o'rnatib oching.</p>`);
+ const sub=await pushSub().catch(()=>null),on=!!sub&&Notification.permission=='granted';
+ if(on)return h(`<p>✅ <b>Yoqilgan.</b> Farzandingiz davomati belgilanganda shu telefonga xabar keladi.</p>`,`<div class="top"><button class="tab" id="pushTest">${ic('msg')}Sinov xabar</button><button class="tab" id="pushOff">O'chirish</button></div>`);
+ if(Notification.permission=='denied')return h(`<p class="mut">Bildirishnomalar telefon sozlamalarida taqiqlangan. Telefon sozlamalari → ilovalar → brauzer (yoki ${esc(M.qisqa||'maktab')}) → Bildirishnomalar → ruxsat bering, so'ng sahifani yangilang.</p>`);
+ return `<div class="card payw" style="border-color:var(--ac)"><b style="color:var(--ac-d)">${ic('msg')}Bepul xabarnoma</b><p>Farzandingiz maktabga <b>kelgani</b> yoki <b>kelmagani</b> haqida telefoningizga darhol xabar kelsinmi?</p><button class="btn" id="pushOn">🔔 Bildirishnomalarni yoqish</button></div>`}
+// Ruxsat oldin berilgan bo'lsa — tugmasiz, jim qayta obuna bo'ladi (obuna eskirgan yoki ma'lumot tozalangan bo'lsa ham)
+async function pushSave(sub){const j=sub.toJSON();const{error}=await sb.from('push_subs').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_id:ME.id,ua:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});return!error}
+async function pushKey(){let{data:k}=await sb.rpc('push_public_key');if(!k){const{data:u}=await sb.rpc('push_fn_url');await fetch(u||PUSH_FN,{method:'POST'}).catch(()=>{});({data:k}=await sb.rpc('push_public_key'))}return k}
+async function pushAuto(){if(!pushOK()||Notification.permission!='granted')return;try{const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+ if(!sub){const k=await pushKey();if(!k)return;sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64k(k)})}
+ const last=(()=>{try{return localStorage.getItem(P+'pushsv')}catch(e){return''}})(),tag=ME.id+'|'+sub.endpoint;
+ if(last!=tag&&await pushSave(sub))try{localStorage.setItem(P+'pushsv',tag)}catch(e){}}catch(e){}}
+// Ota-ona bildirishnomani yoqmaguncha — butun ekranni egallaydigan oyna (brauzer qoidasiga ko'ra ruxsatni faqat ota-ona bera oladi)
+async function pushGate(){const old=$('pgate');if(old)old.remove();if(ME.role!='parent'||!ON('bildirishnoma'))return;
+ const ios=isIOS()&&!standalone(),ok=pushOK(),perm=ok?Notification.permission:'';if(ok&&perm=='granted'){const had=!!(await pushSub().catch(()=>null));await pushAuto();if(!had&&$('pushOn')&&await pushSub().catch(()=>null))render();return}
+ try{if(sessionStorage.getItem(P+'pgate')&&(ios||!ok||perm=='denied'))return}catch(e){}
+ const body=ios?`<p>Farzandingiz davomati haqida xabar olish uchun ilovani <b>bosh ekranga o'rnating</b>:</p><p>Safari'da <b>«Ulashish» (yoki «•••») → «На экран «Домой»» → «Добавить»</b>. So'ng ilovani bosh ekrandagi <b>${esc(M.qisqa||'maktab')}</b> belgisidan oching.</p><button class="tab" id="pgOk">Tushunarli</button>`
+  :!ok?`<p>Bu brauzer bildirishnomani qo'llamaydi. Ilovani <b>Chrome</b> (Android) yoki <b>Safari</b> (iPhone) orqali o'rnatib oching.</p><button class="tab" id="pgOk">Tushunarli</button>`
+  :perm=='denied'?`<p>Bildirishnomalar <b>taqiqlangan</b>. Yoqish uchun: telefon <b>Sozlamalar → Ilovalar → Chrome (yoki ${esc(M.qisqa||'maktab')}) → Bildirishnomalar → Ruxsat berish</b>, so'ng ilovani qayta oching.</p><button class="tab" id="pgOk">Tushunarli</button>`
+  :`<p>Farzandingiz maktabga <b>kelgani</b> yoki <b>kelmagani</b> haqida telefoningizga <b>bepul xabar</b> keladi. Davom etish uchun bildirishnomalarni yoqing.</p><button class="btn" id="pushOn" style="font-size:18px;padding:14px 22px">🔔 Bildirishnomalarni yoqish</button><p class="mut" style="margin-top:10px">Keyingi oynada <b>«Ruxsat berish» (Allow)</b> ni tanlang.</p>`;
+ document.body.insertAdjacentHTML('beforeend',`<div id="pgate"><div class="pgc"><div style="font-size:44px">🔔</div><h2>Bildirishnomalar</h2>${body}</div></div>`)}
+async function pushOn(btn){btn.disabled=true;try{const k=await pushKey();
+  if(!k){flash("Server hali sozlanmagan — maktab ma'muriyatiga xabar bering.");return}
+  const perm=await Notification.requestPermission();if(perm!='granted'){flash("Ruxsat berilmadi. Qayta urinib, «Ruxsat berish» ni tanlang.");pushGate();return}
+  const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64k(k)}),j=sub.toJSON();
+  const{error}=await sb.from('push_subs').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_id:ME.id,ua:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});
+  if(error){flash(netMsg(error));return}try{localStorage.setItem(P+'pushsv',ME.id+'|'+j.endpoint)}catch(e){}const g=$('pgate');if(g)g.remove();flash("✅ Bildirishnomalar yoqildi");await sb.rpc('push_test').then(()=>{},()=>{});render()}
+ catch(e){flash("Yoqib bo'lmadi: "+(e.message||e))}finally{btn.disabled=false}}
 // Ota-ona uchun: farzandning oylar bo'yicha ballari (har oy alohida, o'tgan oylar saqlanadi)
 async function kidMonths(){const{sy,out}=syMonths(),cur=nowT().d.slice(0,7),{data,error}=await sb.rpc('my_month_totals',{p_from:sy+'-09-01'});if(error||!data||!data.length)return '';
  const m={};data.forEach(r=>m[String(r.month).slice(0,7)]=+r.total);
@@ -918,3 +954,9 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-pv],
   if(error){flash(/parent_checkin/.test(error.message)?"Savolnoma hali yoqilmagan (admin platforma/sql/03-ota-ona-savolnoma.sql ni ishga tushirishi kerak)":netMsg(error));return}
   S.ck={};flash(a.q_talk?"✅ Rahmat! Farzandingiz bilan har kuni suhbatlashing.":"Rahmat! Bugun kechqurun farzandingiz bilan 15 daqiqa suhbatlashib ko'ring.");render()}});
 addEventListener('popstate',e=>{if(ME&&ME.role=='parent'){S.pv=(e.state&&e.state.pv)||null;render()}});
+// Bildirishnomalar: yoqish, sinov, o'chirish, majburiy oyna
+document.addEventListener('click',async e=>{const t=e.target.closest('#pushOn,#pgOk,#pushTest,#pushOff');if(!t||!ME)return;
+ if(t.id=='pushOn'){await pushOn(t);return}
+ if(t.id=='pgOk'){try{sessionStorage.setItem(P+'pgate','1')}catch(_){}const g=$('pgate');if(g)g.remove();return}
+ if(t.id=='pushTest'){const{error}=await sb.rpc('push_test');flash(error?netMsg(error):"✅ Sinov xabar yuborildi — 1 daqiqa ichida keladi");return}
+ if(t.id=='pushOff'){const sub=await pushSub().catch(()=>null);if(sub){await sb.from('push_subs').delete().eq('endpoint',sub.endpoint);await sub.unsubscribe().catch(()=>{})}flash("Bildirishnomalar o'chirildi");render()}});
