@@ -56,7 +56,7 @@ const cname=id=>(CL.find(c=>c.id==id)||{}).name||'';
 // Kirish oynasi: chapda maktab rasmi (barcha rollar uchun bitta fon), o'ngda rol tanlash va forma.
 // S.lt: 0 — ota-ona kirishi, 1 — ota-ona ro'yxatdan o'tishi, 2 — admin, 3 — o'qituvchi
 function loginView(){$('out').style.display='none';document.body.classList.remove('in');$('chips').innerHTML='';$('side').innerHTML='';document.body.classList.remove('hs-side');
- const K=M.kirish||{},OT=ON('ota_ona'),L=!OT&&S.lt<2?3:S.lt||0,tab=L==1?0:L;
+ const K=M.kirish||{},U=K.ustki,OT=ON('ota_ona'),L=!OT&&S.lt<2?3:S.lt||0,tab=L==1?0:L;
  const F=(id,lb,ty,icn,ph,ac)=>`<label class="kr-f"><span>${lb}</span>${ic(icn)}<input id="${id}" type="${ty}" placeholder="${ph}" autocomplete="${ac}"${ty=='tel'?' inputmode="tel"':''}>${ty=='password'?`<button type="button" class="kr-eye" data-eye="${id}" aria-label="Parolni ko'rsatish">${ic('eye')}</button>`:''}</label>`;
  const R=[[0,'users','Ota-ona'],[3,'cap',"O'qituvchi"],[2,'shield','Admin']].filter(r=>OT||r[0]);
  const tel='+998 90 123 45 67',go=t=>`<button class="btn kr-btn" id="${t[0]}">${t[1]}</button>`;
@@ -64,7 +64,7 @@ function loginView(){$('out').style.display='none';document.body.classList.remov
   :L==2?`${F('em','Email','email','mail','admin@maktab.uz','username')}${F('pw','Parol','password','key','Parolingiz','current-password')}${go(['tgo','Admin sifatida kirish'])}`
   :`${F('lph','Telefon raqam','tel','phone',tel,'username')}${F('lpw','Parol','password','key','Parolingiz','current-password')}${go(['lgo','Kirish'])}`+(L==3?`<p class="kr-alt">Login va parolni maktab ma'muriyati beradi.</p>`:`<p class="kr-alt">Birinchi marta kiryapsizmi? <button type="button" class="kr-lnk" data-lt="1">Ro'yxatdan o'tish</button></p>`);
  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!standalone()?`<div class="ios"><b>📲 Ilova qilib o'rnatish (iPhone):</b><br>1) Pastdagi <b>«•••»</b> tugmasini bosing (eski iPhone'larda — <b>Ulashish ⬆️</b> tugmasi).<br>2) <b>«Поделиться» / Share</b> ni tanlang.<br>3) Ro'yxatni pastga surib, <b>«На экран «Домой»» / Add to Home Screen</b> → <b>«Добавить» / Add</b>.<br>Shundan keyin platforma telefon ekranidagi <b>${esc(M.qisqa)}</b> belgisidan ochiladi.</div>`:'';
- $('view').innerHTML=`<div class="kr">${K.rasm?`<div class="kr-art"><img src="${esc(K.rasm)}" alt="${esc(K.rasm_izoh||M.nomi)}" width="853" height="1280" fetchpriority="high"></div>`:''}
+ $('view').innerHTML=`<div class="kr">${K.rasm?`<div class="kr-art${U?' kr-ov':''}"><img src="${esc(K.rasm)}" alt="${esc(K.rasm_izoh||M.nomi)}" width="${K.en||853}" height="${K.boy||1280}" style="object-position:${esc(K.joy||'50% 50%')}" fetchpriority="high">${U?`<div class="kr-cap"><div class="kr-bub"><b>${esc(U.sarlavha||'')}</b><span>${esc(U.matn||'')}</span></div>${(U.imkoniyatlar||[]).length?`<ul class="kr-feat">${U.imkoniyatlar.map(([i,t])=>`<li>${ic(i)}${esc(t)}</li>`).join('')}</ul>`:''}</div>`:''}</div>`:''}
  <section class="card kr-card"><span class="kr-kick">${esc(K.salom||'Xush kelibsiz')}</span><h2>Tizimga kirish</h2><p class="mut">Rolingizni tanlang va ma'lumotlaringizni kiriting.</p>
  <div class="kr-roles" role="tablist">${R.map(([n,i,t])=>`<button class="kr-role" role="tab" data-lt="${n}" aria-selected="${tab==n}">${ic(i)}${t}</button>`).join('')}</div>
  <div class="kr-form">${body}</div>${ios}

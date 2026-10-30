@@ -13,8 +13,16 @@ window.MAKTAB = {
   yuqori_sinflar: '5–9',              // maktabda 9-sinfgacha o'qitiladi
 
   kirish: {
-    rasm: 'img/fon.jpg',                // admin, ota-ona va o'qituvchi uchun bitta fon
-    rasm_izoh: 'Yurt School — Barchaning muvaffaqiyati uchun birga!',
+    rasm: 'img/kirish.jpg',             // admin, ota-ona va o'qituvchi uchun bitta fon
+    en: 1200, boy: 1280,                // rasm o'lchami (piksel)
+    joy: '38% 40%',                     // rasmning qaysi qismi markazda turadi (kichik ekranda)
+    rasm_izoh: "Yurt School o'quvchisi maktab binosi oldida",
+    // Rasm ustidagi yozuv va imkoniyatlar (kerak bo'lmasa, ustki: null)
+    ustki: {
+      sarlavha: 'Assalomu alaykum!',
+      matn: "Yurt School boshqaruv platformasiga xush kelibsiz.",
+      imkoniyatlar: [['chart', 'Kunlik ball va reyting'], ['cal', 'Davomat nazorati'], ['card', "To'lovlar holati"], ['food', 'Kunlik taomnoma']]
+    },
     salom: 'Xush kelibsiz'
   },
 

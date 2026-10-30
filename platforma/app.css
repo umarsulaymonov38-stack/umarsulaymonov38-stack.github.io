@@ -204,3 +204,23 @@ footer svg{width:40px;height:25px}
  .kr-role{flex-direction:column;gap:3px;font-size:13px;min-height:58px}
  .kr-f input{height:52px;font-size:16px}
 }
+/* Kirish rasmi ustidagi salomlashuv va imkoniyatlar (sozlamada kirish.ustki) */
+.kr:has(.kr-ov){grid-template-columns:minmax(0,1.08fr) minmax(0,1fr)}
+.kr-ov{aspect-ratio:auto;max-height:none;min-height:600px}
+.kr-ov img{position:absolute;inset:0}
+.kr-ov:before{content:"";position:absolute;left:0;right:0;bottom:0;height:58%;z-index:1;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--nv) 55%,transparent) 38%,color-mix(in srgb,var(--nv) 94%,#000))}
+.kr-cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:22px;color:#fff}
+.kr-bub{position:relative;display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.96);color:#1b2240;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:15px}
+.kr-bub b{font-size:17px;color:var(--ac)}
+.kr-feat{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kr-feat li{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:13.5px;font-weight:600}
+.kr-feat .i{width:16px;height:16px;flex:none;color:#ffd2bd}
+@media (max-width:900px){
+ .kr:has(.kr-ov){grid-template-columns:1fr}
+ .kr-ov{min-height:0;height:min(112vw,560px)}
+ .kr-ov:before{height:50%}
+ .kr-cap{padding:16px 16px 80px}
+ .kr-feat{display:none}
+}
+@media (max-width:560px){.kr-bub{font-size:14px;padding:11px 13px}.kr-bub b{font-size:15px}}
+.kr-foot .tab{padding:8px 12px;font-size:14px}
