@@ -11,6 +11,9 @@ window.MAKTAB = {
   email_domen: 'ota.yurtschool.app',    // ota-ona va o'qituvchi akkauntlari ichki emaili (telefon@shu domen)
 
   yuqori_sinflar: '5–9',              // maktabda 9-sinfgacha o'qitiladi
+  til_fanlar: '^(arab|ona tili)',       // 6-guruhga kiradigan fanlar (fan nomining boshi)
+  til_nomi: 'Arab tili va Ona tili',    // 6-guruh nomi
+  guruh_nomi: 'toliq',                  // fan guruhlari ro'yxatda to'liq nomi bilan ko'rinadi (masalan, «6-7-sinflar Ingliz tili B1»)
 
   kirish: {
     rasm: 'img/kirish.jpg',             // admin, ota-ona va o'qituvchi uchun bitta fon
