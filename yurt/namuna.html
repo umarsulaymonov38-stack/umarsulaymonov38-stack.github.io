@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Yurt School — Yangi dizayn namunasi</title>
+<meta name="theme-color" content="#1a5cff">
+<link rel="icon" href="img/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* NAMUNA: platformaning yangi ko'rinishi (my.gov.uz uslubida). Ma'lumotlar namunaviy. */
+:root{
+  --b1:#1a5cff;--b2:#0b47d9;--t1:#14c4a6;--o1:#ff7a3d;
+  --bg:#f3f6fb;--card:#fff;--ink:#14213d;--mut:#6b7794;--ln:#e4e9f3;
+  --sh:0 1px 2px rgba(20,33,61,.05),0 10px 30px -12px rgba(20,33,61,.18);--r:22px;
+}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.5 Montserrat,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+button,input{font:inherit;color:inherit}
+.i{width:22px;height:22px;flex:none}
+a{color:inherit;text-decoration:none}
+
+/* Chap panel */
+.side{position:fixed;left:14px;top:14px;bottom:14px;width:84px;z-index:20;display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0;
+  border-radius:24px;background:linear-gradient(180deg,var(--b1),var(--b2));box-shadow:0 18px 40px -16px rgba(11,71,217,.7)}
+.side .lg{width:56px;height:56px;border-radius:16px;background:#fff;display:grid;place-items:center;margin-bottom:14px;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.side .lg img{width:46px;height:46px;object-fit:contain}
+.nav{position:relative;width:56px;height:52px;display:grid;place-items:center;border-radius:16px;color:#fff;opacity:.82;transition:background .2s,opacity .2s}
+.nav:hover{background:rgba(255,255,255,.14);opacity:1}
+.nav.on{background:#fff;color:var(--b1);opacity:1;box-shadow:0 6px 16px rgba(0,0,0,.15)}
+.nav .tip{position:absolute;left:66px;white-space:nowrap;padding:7px 12px;border-radius:10px;background:var(--ink);color:#fff;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transform:translateX(-6px);transition:.15s}
+.nav:hover .tip{opacity:1;transform:none}
+.side hr{width:44px;border:0;border-top:1px solid rgba(255,255,255,.25);margin:6px 0}
+.side .sp{flex:1}
+
+/* Asosiy qism */
+.main{margin-left:112px;padding:22px 28px 40px;max-width:1440px}
+.top{display:flex;align-items:center;gap:18px;margin-bottom:20px}
+.brand{font-size:13px;font-weight:700;letter-spacing:.6px;line-height:1.45;text-transform:uppercase;color:#3b4766}
+.brand b{display:block;color:var(--b1)}
+.tq{margin-left:auto;display:flex;align-items:center;gap:14px}
+.qi{display:flex;align-items:center;gap:10px;padding-right:14px;border-right:1px solid var(--ln)}
+.qi .c{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.qi b{display:block;font-size:17px;line-height:1.1;color:var(--b1)}
+.qi span{font-size:12.5px;color:var(--mut)}
+.bell{position:relative;width:48px;height:48px;border-radius:14px;border:2px solid var(--ln);background:#fff;display:grid;place-items:center;color:var(--b1);cursor:pointer}
+.bell em{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#e5484d;color:#fff;font:700 12px/22px Montserrat;font-style:normal}
+.me{display:flex;align-items:center;gap:10px;height:52px;padding:0 20px 0 8px;border:0;border-radius:26px;color:#fff;font-weight:700;cursor:pointer;
+  background:linear-gradient(135deg,#3d7bff,var(--b2));box-shadow:0 10px 24px -10px rgba(26,92,255,.8)}
+.me .av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center}
+
+/* Gradientli kirish bloki */
+.hero{position:relative;overflow:hidden;padding:30px 30px 24px;border-radius:28px;color:#fff;
+  background:radial-gradient(900px 400px at 100% 0,rgba(20,196,166,.95),transparent 60%),linear-gradient(110deg,#1652f0 0%,#1a6bff 45%,#13a9c9 80%,#14c4a6 100%)}
+.hero:before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(90deg,transparent,#000 60%)}
+.hrow{position:relative;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.hero h1{font-size:40px;font-weight:800;letter-spacing:-.5px}
+.search{flex:1;min-width:280px;max-width:600px;display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;border-radius:16px;background:#fff;color:var(--mut);box-shadow:0 10px 26px -12px rgba(0,0,0,.35)}
+.search .i{color:var(--b1)}
+.search input{flex:1;border:0;outline:0;background:none;color:var(--ink)}
+.today{margin-left:auto;display:flex;align-items:center;gap:14px}
+.today .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.55);font-size:13px;font-weight:700}
+.today .num{font-size:38px;font-weight:800;line-height:1}
+.today .num small{font-size:18px;opacity:.85}
+.today .lbl{font-size:12.5px;opacity:.9}
+.tiles{position:relative;display:flex;gap:14px;margin-top:26px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.tiles::-webkit-scrollbar{display:none}
+.tile{position:relative;flex:none;width:136px;height:150px;border-radius:18px;overflow:hidden;cursor:pointer;border:3px solid rgba(255,255,255,.85);
+  background:var(--g);box-shadow:0 12px 24px -12px rgba(0,0,0,.45);transition:transform .2s}
+.tile:hover{transform:translateY(-4px)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile .ico{position:absolute;right:12px;top:12px;width:58px;height:58px;opacity:.95;color:#fff;filter:drop-shadow(0 8px 12px rgba(0,0,0,.25))}
+.tile .ico svg{width:100%;height:100%;stroke-width:1.6}
+.tile b{position:absolute;left:10px;right:10px;bottom:10px;font-size:13.5px;line-height:1.25;font-weight:700;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+.tile:after{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(transparent,rgba(0,0,0,.35))}
+.tile b{z-index:1}
+
+/* Katta kartochkalar */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+.big{position:relative;overflow:hidden;min-height:176px;padding:28px 30px;border-radius:var(--r);background:var(--card);border:1.5px solid var(--ln);box-shadow:var(--sh)}
+.big.a{border-color:#9db8ff}
+.big h2{font-size:22px;font-weight:800;margin-bottom:8px}
+.big p{max-width:60%;color:var(--mut);font-weight:500}
+.big .more{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-weight:700;color:var(--b1)}
+.big.c .more{color:#12a150}
+.big .art{position:absolute;right:26px;top:50%;transform:translateY(-50%)}
+.ring{--p:51;width:136px;height:136px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--b1) calc(var(--p)*1%),#e4ecff 0);box-shadow:0 0 0 14px #eef3ff}
+.ring div{width:104px;height:104px;border-radius:50%;background:#fff;display:grid;place-items:center;text-align:center}
+.ring b{display:block;font-size:28px;font-weight:800;color:var(--b1);line-height:1}
+.ring span{font-size:11px;color:var(--mut);font-weight:600}
+.notes{width:200px;display:grid;gap:10px}
+.notes div{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#fff;box-shadow:0 8px 20px -10px rgba(20,33,61,.3);font-size:12px;font-weight:600;color:#3b4766}
+.notes i{width:10px;height:10px;border-radius:50%;flex:none}
+.notes em{position:absolute;right:-8px;top:-12px;width:30px;height:30px;border-radius:50%;background:#12a150;color:#fff;display:grid;place-items:center;font:800 13px Montserrat;font-style:normal}
+
+/* Ko'rsatkichlar va bo'limlar */
+h3.sec{display:flex;align-items:center;gap:10px;margin:32px 4px 14px;font-size:20px;font-weight:800}
+h3.sec .i{color:var(--b1)}
+h3.sec a{margin-left:auto;font-size:14px;color:var(--b1)}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.k{display:flex;align-items:center;gap:14px;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--ln);box-shadow:var(--sh)}
+.k .c{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;color:var(--k);background:color-mix(in srgb,var(--k) 13%,#fff)}
+.k b{display:block;font-size:26px;font-weight:800;line-height:1.1}
+.k span{font-size:13px;color:var(--mut);font-weight:600}
+.k .tr{margin-left:auto;align-self:flex-start;font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;background:#e8f7ee;color:#12a150}
+.k .tr.dn{background:#fdecec;color:#e5484d}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.svc{display:flex;align-items:center;gap:16px;padding:18px;border-radius:20px;background:var(--card);border:1px solid var(--ln);box-shadow:var(--sh);cursor:pointer;transition:transform .15s,border-color .15s}
+.svc:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--k) 50%,var(--ln))}
+.svc .c{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--k) 75%,#fff),var(--k));box-shadow:0 10px 20px -10px var(--k)}
+.svc .c .i{width:28px;height:28px}
+.svc b{display:block;font-size:16px;font-weight:700}
+.svc small{display:block;font-size:13px;color:var(--mut);font-weight:500}
+.svc .bd{display:inline-block;margin-top:5px;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700}
+.bd.r{background:#fdecec;color:#e5484d}.bd.g{background:#e8f7ee;color:#12a150}.bd.y{background:#fff4dc;color:#b07800}
+.svc>.i{margin-left:auto;color:#a6b0c8}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:22px}
+.card{padding:22px;border-radius:var(--r);background:var(--card);border:1px solid var(--ln);box-shadow:var(--sh)}
+.cls{display:grid;gap:12px}
+.cr{display:grid;grid-template-columns:150px 1fr 54px;align-items:center;gap:14px;font-weight:600;font-size:14px}
+.cr .bar{height:10px;border-radius:99px;background:#edf1f8;overflow:hidden;display:flex}
+.cr .bar i{display:block;height:100%}
+.cr b{text-align:right}
+.lgd{display:flex;gap:14px;margin-top:14px;font-size:12px;color:var(--mut);font-weight:600}
+.lgd i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.feed{display:grid;gap:4px}
+.fi{display:flex;gap:12px;padding:10px 4px;border-bottom:1px dashed var(--ln)}
+.fi:last-child{border:0}
+.fi .c{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;color:var(--k);background:color-mix(in srgb,var(--k) 13%,#fff)}
+.fi .c .i{width:18px;height:18px}
+.fi b{font-size:14px}.fi span{display:block;font-size:12.5px;color:var(--mut)}
+.chat{position:fixed;right:24px;bottom:24px;width:62px;height:62px;border-radius:50%;border:0;display:grid;place-items:center;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,#3d7bff,var(--b2));box-shadow:0 14px 30px -10px rgba(26,92,255,.9);z-index:30}
+.ribbon{position:fixed;left:126px;bottom:16px;z-index:40;padding:6px 14px;border-radius:999px;background:#14213d;color:#fff;font-size:12px;font-weight:700;box-shadow:var(--sh)}
+
+@media (max-width:1100px){.grid{grid-template-columns:1fr 1fr}.kpi{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.qi{display:none}}
+@media (max-width:760px){
+  .ribbon{left:12px;bottom:82px}
+  .search{flex-basis:100%;order:3;height:50px}
+  .big .art{position:relative;right:auto;top:auto;transform:none;margin:18px auto 0}.big p{max-width:none}.big .art.notes{width:100%}.ring{margin:0 auto}
+  .side{left:0;right:0;top:auto;bottom:0;width:auto;height:70px;flex-direction:row;justify-content:space-around;padding:0 6px calc(env(safe-area-inset-bottom)) ;border-radius:22px 22px 0 0}
+  .side .lg,.side hr,.side .sp,.nav.x{display:none}.nav{width:52px;height:50px}.nav .tip{display:none}
+  .main{margin:0;padding:14px 14px 100px}
+  .brand{font-size:11px}.me span{display:none}.me{padding:0 8px}
+  .hero{padding:22px 18px 16px;border-radius:22px}.hero h1{font-size:28px}.today{margin-left:0}.search{min-width:0;width:100%}
+  .tile{width:118px;height:132px}
+  .duo,.grid{grid-template-columns:1fr}
+  .kpi{gap:10px}.k{padding:14px;gap:10px}.k .c{width:44px;height:44px}.k b{font-size:21px}.k .tr{display:none}
+  .cr{grid-template-columns:110px 1fr 44px}.chat{bottom:84px;right:16px;width:54px;height:54px}
+}
+</style>
+</head>
+<body>
+<div class="ribbon">NAMUNA · ma'lumotlar namunaviy</div>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></symbol>
+  <symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></symbol>
+  <symbol id="edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  <symbol id="card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></symbol>
+  <symbol id="food" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+  <symbol id="users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16V9M12 16V5M17 16v-4"/></symbol>
+  <symbol id="cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></symbol>
+  <symbol id="bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="arr" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>
+  <symbol id="msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="userx" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5M22 8l-5 5"/></symbol>
+  <symbol id="cap" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></symbol>
+  <symbol id="heart" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+  <symbol id="down" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></symbol>
+</svg>
+
+<aside class="side">
+  <div class="lg"><img src="img/logo.png" alt="Yurt School"></div>
+  <a class="nav on" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#home"/></svg><span class="tip">Bosh sahifa</span></a>
+  <a class="nav" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#grid"/></svg><span class="tip">Sinflar</span></a>
+  <a class="nav" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#cal"/></svg><span class="tip">Davomat</span></a>
+  <a class="nav" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#edit"/></svg><span class="tip">Baholash</span></a>
+  <a class="nav" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#card"/></svg><span class="tip">To'lovlar</span></a>
+  <a class="nav x" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#food"/></svg><span class="tip">Taomnoma</span></a>
+  <a class="nav x" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#users"/></svg><span class="tip">O'qituvchilar</span></a>
+  <a class="nav x" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#chart"/></svg><span class="tip">Hisobotlar</span></a>
+  <hr><span class="sp"></span>
+  <a class="nav" href="#"><svg class="i" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#cog"/></svg><span class="tip">Sozlamalar</span></a>
+</aside>
+
+<main class="main">
+  <div class="top">
+    <div class="brand">Yurt School<b>Boshqaruv platformasi</b></div>
+    <div class="tq">
+      <div class="qi"><span class="c" style="background:#12a150"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#cal"/></svg></span><div><b id="clk">--:--</b><span id="dt">Toshkent vaqti</span></div></div>
+      <div class="qi"><span class="c" style="background:var(--b1)"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#phone"/></svg></span><div><b>+998 66 000 00 00</b><span>Qabulxona</span></div></div>
+      <button class="bell" aria-label="Xabarnomalar"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#bell"/></svg><em>3</em></button>
+      <button class="me"><span class="av"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#user"/></svg></span><span>Administrator</span></button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div class="hrow">
+      <h1>Xush kelibsiz!</h1>
+      <label class="search"><svg class="i" fill="none" stroke="currentColor" stroke-width="2.2"><use href="#search"/></svg><input placeholder="Qidiruv: o'quvchi, sinf yoki bo'lim nomi…"></label>
+      <div class="today"><div><span class="pill"><svg class="i" style="width:16px;height:16px" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#cal"/></svg>Bugun keldi</span><div class="lbl" style="margin-top:6px">195 o'quvchidan</div></div><div class="num">172<small> · 88%</small></div></div>
+    </div>
+    <div class="tiles">
+      <a class="tile" style="--g:#1d4ed8"><img src="img/kirish.jpg" alt=""><b>Yurt School</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#5b8cff,#2a4fd8)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#cal"/></svg></span><b>Davomat</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#ffb36b,#f2603a)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#edit"/></svg></span><b>Baholash</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#ffd76a,#f0a400)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#trophy"/></svg></span><b>Reyting</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#6ee7c7,#0fa88f)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#link"/></svg></span><b>Ota-onalar ulanishi</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#ff8fb1,#d6336c)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#card"/></svg></span><b>To'lovlar</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#ffa26b,#e8590c)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#food"/></svg></span><b>Taomnoma</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#a78bfa,#6d28d9)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#users"/></svg></span><b>O'qituvchilar</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#7dd3fc,#0284c7)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#msg"/></svg></span><b>Fikr-mulohazalar</b></a>
+      <a class="tile" style="--g:linear-gradient(150deg,#94a3b8,#334155)"><span class="ico"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><use href="#down"/></svg></span><b>Zaxira nusxa</b></a>
+    </div>
+  </section>
+
+  <div class="duo">
+    <div class="big a">
+      <h2>Ota-onalar ulanishi</h2>
+      <p>Platformaga ulangan ota-onalar — sinflar kesimida, real vaqtda.</p>
+      <a class="more" href="#">Batafsil ma'lumot <svg class="i" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#arr"/></svg></a>
+      <div class="art"><div class="ring" style="--p:62"><div><b>62%</b><span>121 / 195</span></div></div></div>
+    </div>
+    <div class="big c">
+      <h2>Bugungi xabarnomalar</h2>
+      <p>Muhim holatlar — hech narsani o'tkazib yubormang.</p>
+      <a class="more" href="#">Barchasini ko'rish <svg class="i" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2.4"><use href="#arr"/></svg></a>
+      <div class="art notes"><em>3</em><div><i style="background:#e5484d"></i>23 o'quvchi kelmadi</div><div><i style="background:#f0a400"></i>4 sinfda baho qo'yilmagan</div><div><i style="background:#1a5cff"></i>2 ta yangi fikr-mulohaza</div></div>
+    </div>
+  </div>
+
+  <h3 class="sec"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chart"/></svg>Bugungi ko'rsatkichlar</h3>
+  <div class="kpi">
+    <div class="k" style="--k:#1a5cff"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#users"/></svg></span><div><b>195</b><span>O'quvchilar</span></div></div>
+    <div class="k" style="--k:#12a150"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#cal"/></svg></span><div><b>88%</b><span>Davomat</span></div><span class="tr">+3%</span></div>
+    <div class="k" style="--k:#f0a400"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#trophy"/></svg></span><div><b>41.6</b><span>O'rtacha kunlik ball</span></div><span class="tr">+1.2</span></div>
+    <div class="k" style="--k:#d6336c"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#card"/></svg></span><div><b>14</b><span>To'lanmagan oylar</span></div><span class="tr dn">−5</span></div>
+  </div>
+
+  <h3 class="sec"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#grid"/></svg>Xizmatlar<a href="#">Barchasi →</a></h3>
+  <div class="grid">
+    <div class="svc" style="--k:#e5484d"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#userx"/></svg></span><div><b>Kelmaganlar</b><small>Bugun kelmagan o'quvchilar</small><span class="bd r">23 nafar</span></div><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chev"/></svg></div>
+    <div class="svc" style="--k:#f0a400"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#trophy"/></svg></span><div><b>Sinflar reytingi</b><small>A, B va C toifalar</small><span class="bd y">1-o'rin: 6-Avloniy</span></div><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chev"/></svg></div>
+    <div class="svc" style="--k:#1a5cff"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#link"/></svg></span><div><b>Ota-onalar ulanishi</b><small>Taklif yuborish, SMS, taklifnoma</small><span class="bd g">62% ulangan</span></div><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chev"/></svg></div>
+    <div class="svc" style="--k:#0ea5a4"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#edit"/></svg></span><div><b>Sinflar va baholash</b><small>Kunlik baho, reyting, sozlamalar</small></div><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chev"/></svg></div>
+    <div class="svc" style="--k:#6d28d9"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#users"/></svg></span><div><b>O'qituvchilar</b><small>Akkauntlar va biriktirilgan sinflar</small></div><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chev"/></svg></div>
+    <div class="svc" style="--k:#d6336c"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#card"/></svg></span><div><b>To'lovlar</b><small>Sinflar bo'yicha to'lovlar va SMS</small><span class="bd r">14 oy qarz</span></div><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#chev"/></svg></div>
+  </div>
+
+  <div class="two" style="margin-top:22px">
+    <div class="card">
+      <h3 class="sec" style="margin:0 0 16px"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#cap"/></svg>Sinflar kesimida davomat</h3>
+      <div class="cls" id="cls"></div>
+      <div class="lgd"><span><i style="background:#12a150"></i>Keldi</span><span><i style="background:#f0a400"></i>Sababli</span><span><i style="background:#e5484d"></i>Kelmadi</span></div>
+    </div>
+    <div class="card">
+      <h3 class="sec" style="margin:0 0 10px"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#clock"/></svg>Oxirgi faollik</h3>
+      <div class="feed">
+        <div class="fi" style="--k:#12a150"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#link"/></svg></span><div><b>Ota-ona ulandi</b><span>Aliyev Sardor (6-Avloniy) · 2 daqiqa oldin</span></div></div>
+        <div class="fi" style="--k:#1a5cff"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#edit"/></svg></span><div><b>Baholar qo'yildi</b><span>3-Beruniy · Karimova D. · 15 daqiqa oldin</span></div></div>
+        <div class="fi" style="--k:#d6336c"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#heart"/></svg></span><div><b>Farzand bilan suhbat</b><span>48 ota-ona bugun javob berdi</span></div></div>
+        <div class="fi" style="--k:#0284c7"><span class="c"><svg class="i" fill="none" stroke="currentColor" stroke-width="2"><use href="#msg"/></svg></span><div><b>Yangi fikr-mulohaza</b><span>"Ovqatlanish" bo'limi · 1 soat oldin</span></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<button class="chat" aria-label="Yordam"><svg class="i" style="width:28px;height:28px" fill="none" stroke="currentColor" stroke-width="2"><use href="#msg"/></svg></button>
+
+<script>
+const C=[["1-Fitratiy",14,1,0],["1-Temuriy",13,0,2],["2-Ulug'bek",15,0,0],["2-Navoiy",12,2,1],["3-Farg'oniy",14,0,1],["3-Beruniy",13,1,1],["4-Boburiy",15,0,0],["4-Buxoriy",12,1,2],["5-Marg'inoniy",14,0,1],["6-Avloniy",15,0,0],["7-Marg'inoniy",11,2,2],["8-Behbudiy",12,1,2],["9-Qodiriy",12,0,3]];
+document.getElementById('cls').innerHTML=C.map(([n,k,s,y])=>{const t=k+s+y;return`<div class="cr"><span>${n}</span><span class="bar"><i style="width:${k/t*100}%;background:#12a150"></i><i style="width:${s/t*100}%;background:#f0a400"></i><i style="width:${y/t*100}%;background:#e5484d"></i></span><b>${Math.round(k/t*100)}%</b></div>`}).join('');
+const MON=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
+function tick(){const p={};new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tashkent',day:'numeric',month:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value);
+ document.getElementById('clk').textContent=p.hour+':'+p.minute;document.getElementById('dt').textContent=p.day+'-'+MON[+p.month-1]+' · Toshkent'}
+tick();setInterval(tick,10000);
+</script>
+</body>
+</html>
