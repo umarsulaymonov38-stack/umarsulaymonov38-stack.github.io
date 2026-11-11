@@ -14,6 +14,7 @@ window.MAKTAB = {
   til_fanlar: '^(arab|ona tili)',       // 6-guruhga kiradigan fanlar (fan nomining boshi)
   til_nomi: 'Arab tili va Ona tili',    // 6-guruh nomi
   yuqori_sportsiz: true,                // yuqori sinflarda (5–9) Sport yo'q: qolgan 4 mezon ×1.25 (yurt/sql/10-baholash-qoidalari.sql)
+  sportsiz_dan: 2,                      // Sport yo'q sinflar: 2-sinfdan yuqori (1-sinfda Sport bor) — yurt/sql/12-sportsiz-2-4.sql
   mezon_nomlari: { behavior: 'Odoblar' }, // kunlik vazifalar nomlari
   faolliksiz: true,                     // 1- va 2-guruh sinflarida «Fanlardagi faollik» yo'q (yurt/sql/11-faolliksiz.sql)
   guruh_nomi: 'toliq',                  // fan guruhlari ro'yxatda to'liq nomi bilan ko'rinadi (masalan, «6-7-sinflar Ingliz tili B1»)
