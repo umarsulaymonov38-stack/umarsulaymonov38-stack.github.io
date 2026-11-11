@@ -13,6 +13,8 @@ window.MAKTAB = {
   yuqori_sinflar: '5–9',              // maktabda 9-sinfgacha o'qitiladi
   til_fanlar: '^(arab|ona tili)',       // 6-guruhga kiradigan fanlar (fan nomining boshi)
   til_nomi: 'Arab tili va Ona tili',    // 6-guruh nomi
+  yuqori_sportsiz: true,                // yuqori sinflarda (5–9) Sport yo'q: qolgan 4 mezon ×1.25 (yurt/sql/10-baholash-qoidalari.sql)
+  mezon_nomlari: { behavior: 'Odoblar' }, // kunlik vazifalar nomlari
   guruh_nomi: 'toliq',                  // fan guruhlari ro'yxatda to'liq nomi bilan ko'rinadi (masalan, «6-7-sinflar Ingliz tili B1»)
 
   kirish: {
@@ -33,6 +35,8 @@ window.MAKTAB = {
   modullar: {
     ota_ona: true,            // Ota-ona kabineti va ro'yxatdan o'tish
     bildirishnoma: true,      // Ota-ona telefoniga bepul push-xabar: davomat belgilanganda (yurt/sql/07-bildirishnoma.sql)
+    baho_izoh: true,          // Fan bahosi o'zgartirilsa sabab so'raladi, ota-onaga ko'rinadi (platforma/modullar/baho-izoh.js)
+    haftalik_yaxshilik: true, // «Ota-onaga yaxshilik» — har juma ota-ona so'rovnomasi (platforma/modullar/haftalik-yaxshilik.js)
     suhbat: true,             // Ota-onaga kunlik savolnoma: farzand bilan suhbat (platforma/sql/03-ota-ona-savolnoma.sql)
     tolov: true,              // To'lovlar va to'lov eslatmalari
     sms: true,                // Avtomatik SMS
