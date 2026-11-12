@@ -99,8 +99,11 @@ const YQ=M.yuqori_sinflar||'5–10';
 // 6-guruh (til guruhlari) fanlari va nomi sozlamadan: Yurt'da Arab tili va Ona tili
 const TILR=M.til_fanlar?new RegExp(M.til_fanlar,'i'):/^(arab|koreys)/i,TILN=M.til_nomi||'Arab va Koreys tili';  // yuqori sinflar oralig'i (sozlamadan)
 const gradeOf=c=>+c.grade||parseInt(c.name)||0;
-const isLang=c=>TILR.test(c.subject||''),grpOf=c=>c.kind=='rep'?5:isLang(c)?6:c.grp?(/^matem/i.test(c.subject||'')?3:4):gradeOf(c)&&gradeOf(c)<=4?1:2;
+// Qo'shimcha fan guruhlari sozlamadan: [raqam, nomi, belgi, fan nomi (boshi)], masalan Yurt: [7,'7-guruh: Rus tili','globe','^rus']
+const XG=(M.qoshimcha_guruhlar||[]).map(g=>[g[0],g[1],g[2],new RegExp(g[3],'i')]),xgOf=c=>(XG.find(g=>c.grp&&g[3].test(c.subject||''))||[])[0];
+const isLang=c=>TILR.test(c.subject||''),grpOf=c=>c.kind=='rep'?5:xgOf(c)||(isLang(c)?6:c.grp?(/^matem/i.test(c.subject||'')?3:4):gradeOf(c)&&gradeOf(c)<=4?1:2);
 const GR=[[1,"1-guruh: Boshlang'ich sinflar (1–4)",'bag'],[2,'2-guruh: Yuqori sinflar ('+YQ+')','cap'],[3,'3-guruh: Matematika','layers'],[4,'4-guruh: Ingliz tili','book'],[5,'5-guruh: Repetitor guruhlar','target'],[6,'6-guruh: '+(M.til_nomi||'Arab tili va Koreys tili'),'globe']],GRT=g=>(GR.find(x=>x[0]==g)||[])[1]||'';
+XG.forEach(g=>GR.push([g[0],g[1],g[2]]));
 const cap=s=>s?s[0].toUpperCase()+s.slice(1).toLowerCase():'';
 const clsLbl=c=>c.kind=='rep'?(c.subject||c.name):isLang(c)||(c.grp&&M.guruh_nomi=='toliq')?c.name:c.grp?(gradeOf(c)?gradeOf(c)+'-sinf ':'')+(/\d|ielts/i.test(c.grp)?String(c.grp).toUpperCase():cap(c.grp))+(c.subject?' · '+c.subject:''):c.name;
 const clsCmp=(a,b)=>isLang(a)&&isLang(b)?String(a.subject).localeCompare(b.subject,'uz')||(gradeOf(a)-gradeOf(b))||String(a.grp).localeCompare(b.grp):a.kind=='rep'?String(clsLbl(a)).localeCompare(clsLbl(b),'uz'):(gradeOf(a)-gradeOf(b))||String(a.grp||a.name).localeCompare(b.grp||b.name,'uz')||String(a.subject||'').localeCompare(b.subject||'','uz');
@@ -372,7 +375,7 @@ async function loadCls(){const st=await q(sb.from('students').select('id,slot,fu
  S.st=st;S.sc={};sc.forEach(r=>S.sc[r.student_id]=r)}
 // Baholash jadvalida ota-ona telefoni (faqat sinf rahbari va admin uchun, tahrirlanadi)
 // Fan guruhlarida (3-, 4-, 6-guruh) ota-ona telefoni ko'rsatilmaydi — u asosiy sinfda yuritiladi
-const noPh=c=>[3,4,6].includes(grpOf(c||{}));
+const noPh=c=>[3,4,6].concat(XG.map(g=>g[0])).includes(grpOf(c||{}));
 async function phLoad(st){if(!canPh({id:S.cls})||!st.length||noPh(CL.find(x=>x.id==S.cls)))return null;const m={};
  (await q(sb.from('student_private').select('student_id,parent_phone').in('student_id',st.map(x=>x.id))).catch(()=>[])).forEach(x=>m[x.student_id]=x.parent_phone||'');return m}
 const phTd=(m,id)=>m?`<td><input class="nm" type="tel" inputmode="tel" style="min-width:150px" data-p="${id}" value="${esc(m[id]||'')}" placeholder="+998..."></td>`:'';
@@ -383,7 +386,7 @@ async function bahoView(){await loadCls();const php=await phLoad(S.st);
 async function rateView(){await loadCls();const rows=S.st.filter(s=>s.full_name.trim()).map(s=>({n:s.full_name,t:sum(S.sc[s.id])})).sort((a,b)=>b.t-a.t);
  return `<div class="card">${dtBar()}${rows.length?`<div class="wrap"><table><tr><th>O'rin</th><th class="l">F.I.Sh</th><th>Ball</th><th>Foiz</th><th></th></tr>${rows.map((r,j)=>`<tr><td>${MD[j]||j+1}</td><td class="l">${esc(r.n)}</td><td class="tot">${r.t}/${MAXD}</td><td>${Math.round(r.t/MAXD*100)}%</td><td><div class="bar"><i style="width:${Math.min(100,r.t/MAXD*100)}%"></i></div></td></tr>`).join('')}</table></div>`:'<p class="mut">Avval «Baholash» bo\'limida ismlarni yozing.</p>'}</div>`}
 // Sinflar reytingi uch toifada: har bir sinf o'z maksimaliga nisbatan foizda solishtiriladi
-const RT=[['A',"A-reyting: 1- va 2-guruh (sinflar)",[1,2]],['B',"B-reyting: 3-, 4- va 6-guruh (Matematika, Ingliz tili, "+TILN+")",[3,4,6]],['C',"C-reyting: 5-guruh (Repetitor)",[5]]];
+const RT=[['A',"A-reyting: 1- va 2-guruh (sinflar)",[1,2]],['B',"B-reyting: 3-, 4-, 6-"+XG.map(g=>', '+g[0]+'-').join('')+"guruh (Matematika, Ingliz tili, "+TILN+XG.map(g=>', '+g[1].replace(/^\d+-guruh: /,'')).join('')+")",[3,4,6].concat(XG.map(g=>g[0]))],['C',"C-reyting: 5-guruh (Repetitor)",[5]]];
 async function clsView(){const{data,error}=await sb.rpc('class_ranking2',{p_day:S.date});
  if(error){if(error.code!='PGRST202')throw error;const r=await q(sb.rpc('class_ranking',{p_day:S.date}));
   return `<div class="card">${dtBar()}<p class="mut">A/B/C reyting uchun admin Supabase'da yangilanish-21.sql ni ishga tushirishi kerak.</p><div class="wrap"><table><tr><th>O'rin</th><th class="l">Sinf</th><th>Jami ball</th><th>O'rtacha foiz</th></tr>${r.map((x,j)=>`<tr><td>${x.has?(MD[j]||j+1):'—'}</td><td class="l">${esc(x.name)}</td><td class="tot">${x.has?x.total:'—'}</td><td class="tot">${x.has?x.pct+'%':'baholanmagan'}</td></tr>`).join('')}</table></div></div>`}
