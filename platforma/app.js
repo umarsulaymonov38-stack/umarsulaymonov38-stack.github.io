@@ -708,19 +708,24 @@ async function pushAuto(){if(!pushOK()||Notification.permission!='granted')retur
 // Ota-ona bildirishnomani yoqmaguncha — butun ekranni egallaydigan oyna (brauzer qoidasiga ko'ra ruxsatni faqat ota-ona bera oladi)
 async function pushGate(){const old=$('pgate');if(old)old.remove();if(ME.role!='parent'||!ON('bildirishnoma'))return;
  const ios=isIOS()&&!standalone(),ok=pushOK(),perm=ok?Notification.permission:'';if(ok&&perm=='granted'){const had=!!(await pushSub().catch(()=>null));await pushAuto();if(!had&&$('pushOn')&&await pushSub().catch(()=>null))render();return}
- try{if(sessionStorage.getItem(P+'pgate')&&(ios||!ok||perm=='denied'))return}catch(e){}
+ try{if(sessionStorage.getItem(P+'pgate'))return}catch(e){}
  const body=ios?`<p>Farzandingiz davomati haqida xabar olish uchun ilovani <b>bosh ekranga o'rnating</b>:</p><p>Safari'da <b>«Ulashish» (yoki «•••») → «На экран «Домой»» → «Добавить»</b>. So'ng ilovani bosh ekrandagi <b>${esc(M.qisqa||'maktab')}</b> belgisidan oching.</p><button class="tab" id="pgOk">Tushunarli</button>`
   :!ok?`<p>Bu brauzer bildirishnomani qo'llamaydi. Ilovani <b>Chrome</b> (Android) yoki <b>Safari</b> (iPhone) orqali o'rnatib oching.</p><button class="tab" id="pgOk">Tushunarli</button>`
   :perm=='denied'?`<p>Bildirishnomalar <b>taqiqlangan</b>. Yoqish uchun: telefon <b>Sozlamalar → Ilovalar → Chrome (yoki ${esc(M.qisqa||'maktab')}) → Bildirishnomalar → Ruxsat berish</b>, so'ng ilovani qayta oching.</p><button class="tab" id="pgOk">Tushunarli</button>`
-  :`<p>Farzandingiz maktabga <b>kelgani</b> yoki <b>kelmagani</b> haqida telefoningizga <b>bepul xabar</b> keladi. Davom etish uchun bildirishnomalarni yoqing.</p><button class="btn" id="pushOn" style="font-size:18px;padding:14px 22px">🔔 Bildirishnomalarni yoqish</button><p class="mut" style="margin-top:10px">Keyingi oynada <b>«Ruxsat berish» (Allow)</b> ni tanlang.</p>`;
+  :`<p>Farzandingiz maktabga <b>kelgani</b> yoki <b>kelmagani</b> haqida telefoningizga <b>bepul xabar</b> keladi. Davom etish uchun bildirishnomalarni yoqing.</p><button class="btn" id="pushOn" style="font-size:18px;padding:14px 22px">🔔 Bildirishnomalarni yoqish</button><p class="mut" style="margin-top:10px">Keyingi oynada <b>«Ruxsat berish» (Allow)</b> ni tanlang.</p><p id="pgMsg" style="margin:8px 0 0;font-weight:600"></p><button class="tab" id="pgOk" style="margin-top:10px">Keyinroq</button>`;
  document.body.insertAdjacentHTML('beforeend',`<div id="pgate"><div class="pgc"><div style="font-size:44px">🔔</div><h2>Bildirishnomalar</h2>${body}</div></div>`)}
-async function pushOn(btn){btn.disabled=true;try{const k=await pushKey();
-  if(!k){flash("Server hali sozlanmagan — maktab ma'muriyatiga xabar bering.");return}
-  const perm=await Notification.requestPermission();if(perm!='granted'){flash("Ruxsat berilmadi. Qayta urinib, «Ruxsat berish» ni tanlang.");pushGate();return}
-  const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64k(k)}),j=sub.toJSON();
+// Xato xabari ekran ustidagi oynada ham ko'rinadi (aks holda oyna ortida qolib, ilova qotib qolgandek tuyuladi)
+const pgMsg=t=>{flash(t);const m=$('pgMsg');if(m){m.textContent=t;m.style.color='var(--bad)'}},pgWait=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(()=>r('kutish'),ms))]);
+async function pushOn(btn){btn.disabled=true;const m=$('pgMsg');if(m){m.textContent='⏳ Yoqilmoqda…';m.style.color=''}try{const k=await pgWait(pushKey(),15000);
+  if(!k||k=='kutish'){pgMsg("Bildirishnoma xizmati hali sozlanmagan yoki internet sust. «Keyinroq» ni bosing — platformadan foydalanaverishingiz mumkin.");return}
+  const perm=await pgWait(Notification.requestPermission(),20000);
+  if(perm=='denied'){pushGate();return}
+  if(perm!='granted'){pgMsg(perm=='kutish'?"Brauzer ruxsat oynasini ochmadi. Ilovani Chrome orqali oching yoki «Keyinroq» ni bosing.":"Ruxsat berilmadi. Qayta urinib, «Ruxsat berish» ni tanlang yoki «Keyinroq» ni bosing.");return}
+  const reg=await pgWait(navigator.serviceWorker.ready,10000);if(reg=='kutish'){pgMsg("Ilova to'liq yuklanmadi. Sahifani yangilang yoki «Keyinroq» ni bosing.");return}
+  const sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64k(k)}),j=sub.toJSON();
   const{error}=await sb.from('push_subs').upsert({endpoint:j.endpoint,p256dh:j.keys.p256dh,auth:j.keys.auth,user_id:ME.id,ua:navigator.userAgent.slice(0,200)},{onConflict:'endpoint'});
-  if(error){flash(netMsg(error));return}try{localStorage.setItem(P+'pushsv',ME.id+'|'+j.endpoint)}catch(e){}const g=$('pgate');if(g)g.remove();flash("✅ Bildirishnomalar yoqildi");await sb.rpc('push_test').then(()=>{},()=>{});render()}
- catch(e){flash("Yoqib bo'lmadi: "+(e.message||e))}finally{btn.disabled=false}}
+  if(error){pgMsg(netMsg(error));return}try{localStorage.setItem(P+'pushsv',ME.id+'|'+j.endpoint)}catch(e){}const g=$('pgate');if(g)g.remove();flash("✅ Bildirishnomalar yoqildi");await sb.rpc('push_test').then(()=>{},()=>{});render()}
+ catch(e){pgMsg("Yoqib bo'lmadi: "+(e.message||e)+". «Keyinroq» ni bosing.")}finally{btn.disabled=false}}
 // Ota-ona uchun: farzandning oylar bo'yicha ballari (har oy alohida, o'tgan oylar saqlanadi)
 async function kidMonths(){const{sy,out}=syMonths(),cur=nowT().d.slice(0,7),{data,error}=await sb.rpc('my_month_totals',{p_from:sy+'-09-01'});if(error||!data||!data.length)return '';
  const m={};data.forEach(r=>m[String(r.month).slice(0,7)]=+r.total);
