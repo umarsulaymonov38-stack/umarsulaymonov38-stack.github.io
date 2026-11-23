@@ -43,6 +43,7 @@ window.MAKTAB = {
     bildirishnoma: true,      // Ota-ona telefoniga bepul push-xabar: davomat belgilanganda (yurt/sql/07-bildirishnoma.sql)
     baho_izoh: true,          // Fan bahosi o'zgartirilsa sabab so'raladi, ota-onaga ko'rinadi (platforma/modullar/baho-izoh.js)
     haftalik_yaxshilik: true, // «Ota-onaga yaxshilik» — har juma ota-ona so'rovnomasi (platforma/modullar/haftalik-yaxshilik.js)
+    yuksalish_imkon: true,    // Yuksalishdagi imkoniyatlar: to'lov, buxgalter, kuzatuvchi, baholanmaganlar, reyting (yurt/sql/16-yuksalish-imkoniyatlari.sql)
     suhbat: true,             // Ota-onaga kunlik savolnoma: farzand bilan suhbat (platforma/sql/03-ota-ona-savolnoma.sql)
     tolov: true,              // To'lovlar va to'lov eslatmalari
     sms: true,                // Avtomatik SMS

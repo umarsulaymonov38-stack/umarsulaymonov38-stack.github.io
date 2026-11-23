@@ -306,7 +306,9 @@ const ADM=()=>[
  [3,'oreyting',"O'qituvchilar reytingi","Baholarni o'z vaqtida qo'yish bo'yicha",'award','#2f9e44',ratingView,'oqituvchi_reyting'],
  [4,'tolov',"To'lovlar","Sinflar bo'yicha to'lovlar va SMS eslatmalar",'card','#c2255c','tolov','tolov'],
  [4,'taom','Taomnoma',"Kunlik ovqatlanish menyusini kiritish",'food','#d9480f',menuView,'taomnoma'],
- [4,'zaxira','Zaxira nusxa',"Barcha ma'lumotlarni faylga yuklab olish",'down','#364fc7',async()=>bkCard()]].filter(x=>!x[7]||ON(x[7]));
+ [4,'zaxira','Zaxira nusxa',"Barcha ma'lumotlarni faylga yuklab olish",'down','#364fc7',async()=>bkCard()]]
+ // Modullar qo'shimcha bo'lim qo'shishi (window.ADMX) yoki mavjudini almashtirishi (window.ADM_SKIP) mumkin
+ .filter(x=>!(window.ADM_SKIP||[]).includes(x[1])).concat(typeof window.ADMX=='function'?window.ADMX():[]).filter(x=>!x[7]||ON(x[7])).sort((a,b)=>a[0]-b[0]);
 const ADG=[[1,'Kundalik nazorat','calcheck'],[2,"O'quvchilar va ota-onalar",'users'],[3,'Xodimlar','award'],[4,'Maktab xizmatlari','school']];
 const mainCls=c=>c.kind!='rep'&&!c.grp&&!isLang(c);
 async function admStats(){const ci=CL.filter(mainCls).map(c=>c.id),t=nowT().d,h=r=>r.count||0;
