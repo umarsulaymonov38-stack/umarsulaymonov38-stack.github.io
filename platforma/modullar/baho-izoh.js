@@ -44,7 +44,7 @@ const row=x=>`<div class="bz-chg"><b>${esc(x.subject||'Fan')}</b> · ${esc(FN[x.
 async function inject(){if(!ME||ME.role!='parent')return;const v=$('view');if(!v||v.querySelector('.bz-card'))return;
  const L=(await load()).filter(x=>!ME.student_id||x.student_id==ME.student_id);if(!L.length)return;
  if(S.pv=='fan'){v.insertAdjacentHTML('beforeend',`<div class="card bz-card"><b>${ic('edit')}Baho o'zgartirishlari (so'nggi 30 kun)</b><p class="mut">O'qituvchi bahoni o'zgartirganda sababini yozadi.</p>${L.map(row).join('')}</div>`);return}
- if(!S.pv){const at=v.querySelector('.psec')||null,h=`<div class="card bz-card"><div class="top"><b>${ic('edit')}Baho o'zgartirildi: ${L.length} ta</b><button class="tab" data-pv="fan" style="margin-left:auto">Ko'rish</button></div>${row(L[0])}</div>`;
+ if(!S.pv){const at=[...v.querySelectorAll('.psec:not(.rksec)')].pop()||null,h=`<div class="card bz-card"><div class="top"><b>${ic('edit')}Baho o'zgartirildi: ${L.length} ta</b><button class="tab" data-pv="fan" style="margin-left:auto">Ko'rish</button></div>${row(L[0])}</div>`;
   if(at)at.insertAdjacentHTML('beforebegin',h);else v.insertAdjacentHTML('beforeend',h)}}
 const _r=render;render=function(){const p=_r.apply(this,arguments);Promise.resolve(p).then(()=>inject().catch(()=>{}));return p};
 })();

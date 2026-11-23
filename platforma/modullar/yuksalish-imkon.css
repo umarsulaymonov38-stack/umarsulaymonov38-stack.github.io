@@ -185,3 +185,10 @@ body.obs #calc{display:none}
 .wkn.lt{background:#fff1e6;color:#9a3412}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wkn{background:#16244a;color:#c5d6ff}:root:not([data-theme="light"]) .wkn.lt{background:#3b2312;color:#ffc078}:root:not([data-theme="light"]) .gpm span{background:#3b1a29;color:#faa2c1;border-color:#862e5c}:root:not([data-theme="light"]) .gpm.ok span{background:#163526;color:#8ce99a;border-color:#2b8a3e}:root:not([data-theme="light"]) .mchip.n,:root:not([data-theme="light"]) .pgb.ok{background:#163526;color:#8ce99a;border-color:#2b8a3e}:root:not([data-theme="light"]) .mchip.k,:root:not([data-theme="light"]) .pgb{background:#132a45;color:#a5d8ff;border-color:#1c7ed6}:root:not([data-theme="light"]) .pgb.bd{background:#3b1717;color:#ffa8a8;border-color:#c92a2a}:root:not([data-theme="light"]) .exc{background:#3b2312!important;color:#ffc078!important;border-color:#d9480f!important}}
 .yxrl{gap:14px;flex-wrap:wrap;margin:4px 0 6px}.yxrl .ck{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+/* Ob-havo (ota-ona profili) */
+.phero .wth{display:flex;align-items:center;gap:10px;margin-left:auto;padding:8px 14px;border-radius:18px;background:rgba(255,255,255,.16);color:#fff;position:relative;z-index:1}
+.phero .wth svg{width:38px;height:38px}
+.phero .wth span{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.22);display:inline-block}
+.phero .wth b{display:block;font-size:20px}.phero .wth .wtd{display:block;font-size:11.5px;opacity:.9}
+@media (max-width:600px){.phero .wth{flex-basis:100%;margin-left:0;order:3}.phero .wth svg{width:30px;height:30px}.phero .wth b{font-size:17px}}
+.livedot{display:inline-block;width:9px;height:9px;margin-right:6px;border-radius:50%;background:#2f9e44;box-shadow:0 0 0 3px rgba(47,158,68,.2);vertical-align:0}

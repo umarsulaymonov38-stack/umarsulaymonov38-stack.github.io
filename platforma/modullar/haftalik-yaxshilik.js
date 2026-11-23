@@ -49,7 +49,7 @@ function confirmBox(){return new Promise(res=>{const o=document.createElement('d
 async function inject(){if(!ME)return;if(ME.role!='parent'){lockCol();return}
  const v=$('view');if(!v||S.pv||!open()||!ME.student_id||v.querySelector('.hy'))return;
  const w=await load();if(S.pv||v.querySelector('.hy'))return;A.w=w;
- const at=v.querySelector('.psec');if(at)at.insertAdjacentHTML('beforebegin',card(w));else v.insertAdjacentHTML('afterbegin',card(w))}
+ const ck=v.querySelector('.ckq,.ckd'),at=(ck&&(ck.closest('.card')||ck))||[...v.querySelectorAll('.psec:not(.rksec)')].pop();if(at)at.insertAdjacentHTML('beforebegin',card(w));else v.insertAdjacentHTML('afterbegin',card(w))}
 function repaint(){const c=$('view').querySelector('.hy');if(c)c.outerHTML=card(A.w)}
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-hy]');if(!b||!ME||ME.role!='parent')return;const k=b.dataset.hy,n=$('hyN');if(n)A.n=n.value;
  if(k=='edit'){A.edit=true;A.s=A.w&&A.w.score;repaint();return}

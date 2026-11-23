@@ -10,6 +10,7 @@ window.MAKTAB = {
   baza: { url: 'https://qthlpzkcxdvgpsnjgdrx.supabase.co', kalit: 'sb_publishable_UHGTE41rMK7YedzgJlIzaw_ItIQqImj' },
   email_domen: 'ota.yurtschool.app',    // ota-ona va o'qituvchi akkauntlari ichki emaili (telefon@shu domen)
 
+  ob_havo: { shahar: 'Samarqand', lat: 39.65, lon: 66.96 },  // ota-ona profilidagi ob-havo
   yuqori_sinflar: '5–9',              // maktabda 9-sinfgacha o'qitiladi
   til_fanlar: '^(arab|ona tili)',       // 6-guruhga kiradigan fanlar (fan nomining boshi)
   til_nomi: 'Arab tili va Ona tili',    // 6-guruh nomi

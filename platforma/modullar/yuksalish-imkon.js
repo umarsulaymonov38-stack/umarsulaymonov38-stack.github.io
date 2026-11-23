@@ -222,7 +222,7 @@ const gapMode=()=>`<div class="bxtabs">${[['tch','users',"O'qituvchilar bo'yicha
 // O'qituvchilar bo'yicha — bir kun, har 1 daqiqada yangilanadi
 async function gapTch(){const d=S.tgd||today,{data,error}=await sb.rpc('teacher_gaps',{p_day:d});
  const top=gapMode()+`<div class="card"><div class="top"><b>${ic('users')}Baho qo'ymagan o'qituvchilar</b><span style="margin-left:auto"><b>Sana:</b> <input type="date" id="tgd" value="${d}" max="${today}"></span></div>
- <p class="mut">${d==today?`🟢 Jonli · ${nowT().hms.slice(0,5)} holati · har 1 daqiqada yangilanadi. `:''}Sinf rahbari — har ish kuni kunlik vazifalar; guruh, repetitor va fan o'qituvchilari — <b>dars jadvalidagi kunlar</b> (O'qituvchilar bo'limida «Dars kunlari»). Kunlik vazifalar muddati — juma 20:00.</p></div>`;
+ <p class="mut">${d==today?`<i class="livedot"></i>Jonli · ${nowT().hms.slice(0,5)} holati · har 1 daqiqada yangilanadi. `:''}Sinf rahbari — har ish kuni kunlik vazifalar; guruh, repetitor va fan o'qituvchilari — <b>dars jadvalidagi kunlar</b> (O'qituvchilar bo'limida «Dars kunlari»). Kunlik vazifalar muddati — juma 20:00.</p></div>`;
  if(error)return top+`<div class="card"><p class="mut">${/teacher_gaps/.test(error.message||'')?"Bo'limni ochish uchun Supabase'da <b>yangilanish-64</b> ni ishga tushiring.":esc(netMsg(error))}</p></div>`;
  const by={};(data||[]).forEach(r=>{const c=CL.find(x=>x.id==r.class_id)||{name:r.class_name};(by[r.user_id]=by[r.user_id]||{n:r.teacher,ph:r.phone,L:[]}).L.push({...r,cl:clsLbl(c)})});
  const A=Object.values(by).map(x=>({...x,miss:x.L.reduce((q,r)=>q+(r.n-r.done),0)})),T=A.filter(x=>x.miss>0).sort((x,y)=>y.miss-x.miss),OK=A.filter(x=>!x.miss).sort((x,y)=>String(x.n).localeCompare(y.n));
@@ -303,11 +303,27 @@ function rkHtml(d){const c=d.class||{},sc=d.school||{},subs=d.subjects||[];
 function subIcon(n){n=(n||'').toLowerCase();if(/matem/.test(n))return '📐';if(/ingliz|english|ielts/.test(n))return '🇬🇧';if(/arab/.test(n))return '🕌';if(/koreys/.test(n))return '🇰🇷';if(/rus/.test(n))return '🇷🇺';if(/ona til|adabiyot/.test(n))return '📖';if(/fizika/.test(n))return '🔬';if(/kimyo/.test(n))return '🧪';if(/biolog/.test(n))return '🧬';if(/informat|dastur/.test(n))return '💻';if(/tarix/.test(n))return '🏛️';if(/geograf/.test(n))return '🗺️';return '📘'}
 async function pgrCard(){const t=today,{data,error}=await sb.rpc('parent_grades',{p_from:t,p_to:t});if(error)return '';const L=(data||[]).filter(x=>x.student_id==ME.student_id).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
  const tm=x=>x.at?new Date(x.at).toLocaleTimeString('uz-UZ',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}):'';
- return `<div class="card pgr" id="pgr"><div class="top"><span class="pti" style="--c:#1c7ed6">${ic('layers')}</span><div><b>Bugungi baholar</b><br><span class="mut">🟢 Jonli · fan va guruh o'qituvchilari qo'ygan baholar</span></div><button class="tab" data-pv="fan" style="margin-left:auto">Barchasi →</button></div>
+ return `<div class="card pgr" id="pgr"><div class="top"><span class="pti" style="--c:#1c7ed6">${ic('layers')}</span><div><b>Bugungi baholar</b><br><span class="mut"><i class="livedot"></i>Jonli · fan va guruh o'qituvchilari qo'ygan baholar</span></div><button class="tab" data-pv="fan" style="margin-left:auto">Barchasi →</button></div>
  ${L.length?L.map(x=>`<div class="pgri"><span class="pgs"><b>${esc(x.subject)}</b><small>${esc(x.teacher||'')}${tm(x)?' · '+tm(x):''}</small></span><span class="pgv">${attIc(x)}${x.hw!=null?`<span class="pgc">UV ${x.hw}</span>`:''}${x.activity!=null?`<span class="pgc">F ${x.activity}</span>`:''}${x.src=='guruh'&&x.behavior!=null?`<span class="pgc">T ${x.behavior}</span>`:''}${x.grade!=null?`<span class="pgc pgb ${x.grade<=2?'bd':x.grade==5?'ok':''}">${x.src=='rep'?'Topshiriq':'Baho'} ${x.grade}</span>`:''}</span></div>`).join('')
   :`<p class="mut" style="margin:8px 0 0">Bugun hali baho qo'yilmagan. O'qituvchi baho qo'yishi bilan shu yerda ko'rinadi.</p>`}
  <p class="mut" style="font-size:11.5px;margin:6px 0 0">UV — uyga vazifa, F — faollik, T — tartib-intizom (1–5).</p></div>`}
 function pgrTick(){clearTimeout(S.pgrTm);S.pgrTm=setTimeout(async()=>{const el=$('pgr');if(el&&ME&&ME.role=='parent'&&!S.pv){const h=await pgrCard().catch(()=>null);if(h&&$('pgr'))$('pgr').outerHTML=h;pgrTick()}},60000)}
+
+// Ob-havo (ota-ona profilida): ochiq, kalitsiz xizmat; 30 daqiqa brauzerda saqlanadi. Shahar: sozlama ob_havo
+const WMO=c=>c==0?['Quyoshli','sun']:c<=2?['Qisman bulutli','psun']:c==3?['Bulutli','cloud']:c<=48?['Tuman','fog']:c<=57?["Mayda yomg'ir",'rain']:c<=67?["Yomg'irli",'rain']:c<=77?['Qorli','snow']:c<=82?["Jala (kuchli yomg'ir)",'rain']:c<=86?['Qor yog\'adi','snow']:['Momaqaldiroq','storm'];
+const WIC={sun:'<circle cx="12" cy="12" r="4.2" fill="#fcc419" stroke="#fcc419"/><path stroke="#fcc419" d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/>',
+ psun:'<circle cx="9" cy="9" r="3.6" fill="#fcc419" stroke="#fcc419"/><path stroke="#fcc419" d="M9 2.5v1.5M2.5 9H4M4.4 4.4l1 1M13.6 4.4l-1 1"/><path fill="#fff" stroke="#fff" d="M18 20H9.5a4 4 0 1 1 .9-7.9A5 5 0 0 1 20 13.5 3.3 3.3 0 0 1 18 20z"/>',
+ cloud:'<path fill="#fff" stroke="#fff" d="M17.5 19H8a5 5 0 1 1 1-9.9A6 6 0 0 1 20 11a4 4 0 0 1-2.5 8z"/>',
+ fog:'<path fill="#fff" stroke="#fff" d="M17.5 15H8a4 4 0 1 1 1-7.9A5 5 0 0 1 19 9a3 3 0 0 1-1.5 6z"/><path stroke="#e0f2fe" d="M4 18.5h16M6 21.5h12"/>',
+ rain:'<path fill="#fff" stroke="#fff" d="M17.5 15H8a4.5 4.5 0 1 1 1-8.9A5.5 5.5 0 0 1 19.5 8a3.5 3.5 0 0 1-2 7z"/><path stroke="#bae6fd" stroke-width="2" d="M8 18l-1.2 3M12 18l-1.2 3M16 18l-1.2 3"/>',
+ snow:'<path fill="#fff" stroke="#fff" d="M17.5 15H8a4.5 4.5 0 1 1 1-8.9A5.5 5.5 0 0 1 19.5 8a3.5 3.5 0 0 1-2 7z"/><path stroke="#e0f2fe" stroke-width="2" d="M8 18.5v3M6.7 20h2.6M12 18.5v3M10.7 20h2.6M16 18.5v3M14.7 20h2.6"/>',
+ storm:'<path fill="#fff" stroke="#fff" d="M17.5 14H8a4.5 4.5 0 1 1 1-8.9A5.5 5.5 0 0 1 19.5 7a3.5 3.5 0 0 1-2 7z"/><path fill="#fcc419" stroke="#fcc419" d="M12.5 15l-3 4.5h3l-1.5 4 4-5.5h-3l1.5-3z"/>'};
+function wthHtml(){let w=null;try{w=JSON.parse(localStorage.getItem(P+'wth')||'null')}catch(e){}
+ if(!w||Date.now()-w.t>18e5){wthLoad();if(!w)return`<div><span>${esc((M.ob_havo||{}).shahar||'Samarqand')}</span><b>—°</b></div>`}
+ const[d,k]=WMO(w.c);
+ return`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${d}">${WIC[k]}</svg><div><span>${esc((M.ob_havo||{}).shahar||'Samarqand')}</span><b>↑${Math.round(w.mx)}° · ↓${Math.round(w.mn)}°</b><small class="wtd">${d}${w.p!=null?` · ${k=='snow'?'qor':"yog'in"} ehtimoli ${Math.round(w.p)}%`:''}</small></div>`}
+let WL=false;function wthLoad(){if(WL)return;WL=true;fetch('https://api.open-meteo.com/v1/forecast?latitude='+((M.ob_havo||{}).lat||39.65)+'&longitude='+((M.ob_havo||{}).lon||66.96)+'&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max&timezone=Asia%2FTashkent&forecast_days=1')
+ .then(r=>r.json()).then(d=>{const x=d.daily;const w={t:Date.now(),mx:x.temperature_2m_max[0],mn:x.temperature_2m_min[0],c:x.weather_code[0],p:x.precipitation_probability_max?x.precipitation_probability_max[0]:null};try{localStorage.setItem(P+'wth',JSON.stringify(w))}catch(e){}document.querySelectorAll('#wth').forEach(el=>el.innerHTML=wthHtml())}).catch(()=>{}).finally(()=>{WL=false})}
 
 // ================= Yurt platformasiga ulash =================
 (function(){if(!ON('yuksalish_imkon'))return;
@@ -342,9 +358,13 @@ render=async function(){
  return r};
 async function after(){if(!ME)return;const v=$('view');if(!v)return;
  // Ota-ona bosh sahifasi: Bugungi baholar va Reyting
- if(ME.role=='parent'&&!S.pv){if(v.querySelector('#pgr'))return;const h=await pgrCard().catch(()=>'');if(S.pv||v.querySelector('#pgr'))return;
-  const blk=h+`<div class="psec">Reyting va o'rinlar</div><div id="rkbox"><div class="ld"><i class="spin"></i>Yuklanmoqda…</div></div>`;
-  const at=v.querySelector('.psec');if(at)at.insertAdjacentHTML('beforebegin',blk);else v.insertAdjacentHTML('beforeend',blk);rkFill();pgrTick();return}
+ if(ME.role=='parent'&&!S.pv){if(v.querySelector('#rkbox'))return;
+  // Yuksalishdagi tartib: profil (ob-havo bilan) → Reyting va o'rinlar → ogohlantirishlar → Bugungi baholar → so'rovnomalar → Xizmatlar
+  const hero=v.querySelector('.phero');if(hero&&!hero.querySelector('#wth'))hero.insertAdjacentHTML('beforeend',`<div class="wth" id="wth" aria-live="polite">${wthHtml()}</div>`);
+  const rk=`<div class="psec rksec">${ic('award')}Reyting va o'rinlar</div><div id="rkbox" class="rkhome"><div class="ld"><i class="spin"></i>Yuklanmoqda…</div></div>`;
+  if(hero)hero.insertAdjacentHTML('afterend',rk);else v.insertAdjacentHTML('afterbegin',rk);rkFill();
+  const h=await pgrCard().catch(()=>'');if(!h||S.pv||v.querySelector('#pgr')||!v.isConnected)return;
+  const ck=v.querySelector('.ckq,.ckd'),at=v.querySelector('.hy')||(ck&&(ck.closest('.card')||ck))||[...v.querySelectorAll('.psec:not(.rksec)')].pop();if(at)at.insertAdjacentHTML('beforebegin',h);else v.insertAdjacentHTML('beforeend',h);pgrTick();return}
  // O'qituvchi sinf oynasi: dars kunlari, baholanmaganlar, ota-ona bilan aloqa
  if(ME.role=='teacher'&&!YBUX()&&!S.as){const top=v.querySelector('.card .tabs');if(!top||top.querySelector('[data-yt]'))return;const c0=CL.find(x=>x.id==S.cls)||{};
   const T=[];if([1,2].includes(grpOf(c0))&&ME.roles&&ME.roles[c0.id]=='rahbar')T.push(['gap','userx','Baholanmaganlar']);

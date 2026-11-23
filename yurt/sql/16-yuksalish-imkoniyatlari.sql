@@ -18,6 +18,21 @@
 
 
 -- ################################ 00-beh ################################
+-- O'quvchi shu ota-onaning farzandimi (Yuksalish yangilanish-71)
+create or replace function public.yk_is_my_kid(p_sid text) returns boolean
+language sql stable security definer set search_path = public, auth as $$
+  select exists (
+    select 1 from public.student_private sp
+     where sp.student_id::text = p_sid
+       and (sp.claimed_by = auth.uid()
+            or right(regexp_replace(coalesce(sp.parent_phone, ''), '\D', '', 'g'), 9)
+               = (select substring(u.email from '^p(\d{9})@') from auth.users u where u.id = auth.uid())))
+  or exists (select 1 from public.profiles p where p.id = auth.uid() and p.student_id::text = p_sid)
+  or exists (select 1 from public.my_kids() k where k.id::text = p_sid)
+$$;
+revoke all on function public.yk_is_my_kid(text) from public, anon;
+grant execute on function public.yk_is_my_kid(text) to authenticated;
+
 -- Repetitor topshiriq ustuni va kunlik foiz funksiyasi (reyting uchun; Yurt repetitor jadvali o'zgarmaydi)
 alter table public.rep_daily add column if not exists task smallint;
 create or replace function public.yk_rep_pct(p_att numeric, p_task numeric) returns numeric
