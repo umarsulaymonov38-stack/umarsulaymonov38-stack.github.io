@@ -328,8 +328,7 @@ window.ADM_SKIP=['tolov'];
 window.ADMX=()=>[
  [1,'gap',"Baho qo'yilmaganlar","O'qituvchilar va sinflar bo'yicha — jonli, PDF",'edit','#d6336c',gapView],
  [1,'davomat',"Davomat to'liq emas","Bugun davomati to'liq belgilanmagan sinflar",'clip','#e8590c',async()=>{const t=nowT(),M=CL.filter(mainCls);return (await attGapHtml(t,M))||`<div class="card"><p class="mut">Sinflar yo'q.</p></div>`}],
- [4,'tolov',"To'lovlar","Naqd/karta, yillik to'lov, kvitansiya, statistika",'card','#c2255c',payView,'tolov'],
- [4,'xarajat','Xarajatlar',"Kunlik xarajatlar va kassa qoldig'i",'minus','#e03131',async()=>expHtml(),'tolov']];
+ [4,'tolov',"To'lovlar","Naqd/karta, yillik to'lov, kvitansiya, xarajatlar, hisobot",'card','#c2255c',payView,'tolov']];
 
 // --- Render: buxgalter sahifasi, o'qituvchi va ota-ona qo'shimchalari ---
 const _r=render;
