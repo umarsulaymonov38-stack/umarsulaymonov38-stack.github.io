@@ -343,8 +343,25 @@ loadMe=async function(uid){let p=null;try{const r=await sb.from('profiles').sele
 window.ADM_SKIP=['tolov'];
 window.ADMX=()=>[
  [1,'gap',"Baho qo'yilmaganlar","O'qituvchilar va sinflar bo'yicha — jonli, PDF",'edit','#d6336c',gapView],
+ [2,'oqrey',"O'quvchilar reytingi","Sinfda va maktabda o'rni, bali va tanga imkoniyati",'trophy','#f08c00',schoolRank],
  [1,'davomat',"Davomat to'liq emas","Bugun davomati to'liq belgilanmagan sinflar",'clip','#e8590c',async()=>{const t=nowT(),M=CL.filter(mainCls);return (await attGapHtml(t,M))||`<div class="card"><p class="mut">Sinflar yo'q.</p></div>`}],
  [4,'tolov',"To'lovlar","Naqd/karta, yillik to'lov, kvitansiya, xarajatlar, hisobot",'card','#c2255c',payView,'tolov']];
+
+// --- O'quvchilar reytingi (admin va kuzatuvchi): sinflar kesimida o'rin, ball va tanga ---
+async function schoolRank(){const m=S.srm||today.slice(0,7),[a,b]=[m+'-01',mr(m).b],cur=m==today.slice(0,7);
+ const{data,error}=await sb.rpc('school_ranking',{p_from:a,p_to:b});
+ const top=`<div class="card"><div class="top"><b>${ic('trophy')}O'quvchilar reytingi — ${MON[+m.slice(5)-1]} ${m.slice(0,4)}</b><span style="margin-left:auto"><b>Oy:</b> <input type="month" id="srm" value="${m}" max="${today.slice(0,7)}"></span></div>
+ <p class="mut">Kunlik vazifalar bo'yicha oylik ball (${OY_MAX} ball — 100%). Tanga: 🥇 Oltin ${COINS[0][1]}%, 🥈 Kumush ${COINS[1][1]}%, 🥉 Bronza ${COINS[2][1]}%.${cur?" Joriy oy uchun «Imkoniyat» — shu sur'atda oy oxiriga taxminiy natija.":''}</p></div>`;
+ if(error)return top+`<div class="card"><p class="mut">${/school_ranking/.test(error.message||'')?"Bu bo'lim uchun Supabase'da <b>yurt/sql/18-ibn-sino-va-guruhlar.sql</b> ni ishga tushiring.":esc(netMsg(error))}</p></div>`;
+ const R=(data||[]).map(r=>({...r,cs:coinState(r.total,r.days)})),by={};R.forEach(r=>(by[r.class_id]=by[r.class_id]||[]).push(r));
+ const cs=CL.filter(c=>by[c.id]).sort(clsCmp),cn=k=>R.filter(r=>(cur?r.cs.pc:r.cs.won)&&(cur?r.cs.pc:r.cs.won)[0]==k).length;
+ const coin=r=>{const w=r.cs.won,p=r.cs.pc;return w?`${coinI(w,22)} <b>${w[0]}</b>`:cur&&p?`<span class="mut">imkoniyat:</span> ${coinI(p,18)} ${p[0]}`:cur&&r.cs.nx?`<span class="mut">${r.cs.nx[0]}gacha ${r.cs.prog}%</span>`:'—'};
+ const kpi=`<div class="card"><div class="kpi"><div><b>${R.length}</b>o'quvchi</div><div><b>${cn('Oltin')}</b>🥇 ${cur?'oltin imkoniyati':'oltin'}</div><div><b>${cn('Kumush')}</b>🥈 ${cur?'kumush imkoniyati':'kumush'}</div><div><b>${cn('Bronza')}</b>🥉 ${cur?'bronza imkoniyati':'bronza'}</div></div>
+ ${R.length?`<p style="margin:10px 0 4px"><b>${ic('award')}Maktabdagi eng yaxshi 10 ta o'quvchi</b></p><div class="wrap"><table style="min-width:0"><tr><th>O'rin</th><th class="l">O'quvchi</th><th class="l">Sinf</th><th>Ball</th><th>Tanga</th></tr>${R.slice().sort((x,y)=>x.school_rank-y.school_rank).slice(0,10).map(r=>`<tr><td>${MD3[r.school_rank-1]||r.school_rank}</td><td class="l">${esc(r.full_name)}</td><td class="l">${esc(clsLbl(CL.find(c=>c.id==r.class_id)||{}))}</td><td class="tot">${r.total}</td><td>${coin(r)}</td></tr>`).join('')}</table></div>`:''}</div>`;
+ return top+kpi+cs.map(c=>{const L=by[c.id].sort((x,y)=>x.class_rank-y.class_rank||x.full_name.localeCompare(y.full_name,'uz'));
+  return `<details class="card fold" data-g="sr${c.id}" ${S.open['sr'+c.id]?'open':''}><summary><b>${esc(clsLbl(c))}</b><span class="bdg">${L.length} o'quvchi · 1-o'rin: ${esc(L[0].full_name)}</span><span class="chev"></span></summary><div class="fbd"><div class="wrap"><table style="min-width:0"><tr><th>Sinfda</th><th class="l">O'quvchi</th><th>Ball</th><th>Foiz</th><th>Maktabda</th><th>Tanga</th></tr>
+  ${L.map(r=>`<tr><td>${MD3[r.class_rank-1]||r.class_rank} <span class="mut">/ ${r.class_size}</span></td><td class="l">${esc(r.full_name)}</td><td class="tot">${r.total} <span class="mut">/ ${OY_MAX}</span></td><td>${Math.round(r.cs.p*10)/10}%</td><td>${r.school_rank} <span class="mut">/ ${r.school_size}</span></td><td>${coin(r)}</td></tr>`).join('')}</table></div></div></details>`}).join('')}
+document.addEventListener('change',e=>{if(e.target.id=='srm'&&e.target.value){S.srm=e.target.value;render()}});
 
 // --- Render: buxgalter sahifasi, o'qituvchi va ota-ona qo'shimchalari ---
 const _r=render;
