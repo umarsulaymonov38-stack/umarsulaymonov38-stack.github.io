@@ -70,7 +70,6 @@ body.in .hin .ttl,body.in .hin #clk{display:none}
 .yp-hb{align-self:flex-start;display:flex;align-items:center;gap:10px;height:46px;padding:0 20px;border:0;border-radius:12px;background:#fff;color:#0d2559;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 10px 24px -12px rgba(0,0,0,.5)}
 .yp-greet{position:relative;overflow:hidden;padding:24px;text-align:center;display:flex;flex-direction:column;justify-content:center;
  background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,#d4a017 12%,var(--card)),var(--card) 70%)}
-.yp-ar{font-family:Amiri,"Noto Naskh Arabic","Traditional Arabic",serif;font-size:30px;line-height:1.6;color:#a67c00}
 .yp-greet h2{margin:8px 0 4px;font-size:22px}.yp-greet p{margin:0 0 10px;color:var(--mut)}.yp-greet small{color:var(--mut);font-size:12px}
 .yp-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:18px}
 .yp-k{position:relative;display:flex;align-items:center;gap:16px;padding:20px;min-width:0;overflow:hidden}

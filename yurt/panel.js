@@ -99,7 +99,7 @@ adminPage=async function(tk,quiet){if(S.as||!ME||ME.role!='admin')return _ap(tk,
  const{t,k,D,td,G,act,gaps}=X,A=ADM(),has=x=>A.some(a=>a[1]==x),nCls=CL.filter(mainCls).length,nGr=CL.length-nCls;
  const hero=`<section class="yp-hero"><div class="yp-hx"><h1><span>${esc(M.nomi||'')}</span> — zamonaviy maktab boshqaruv platformasi</h1><p>Bilim, tarbiya va muvaffaqiyat sari birgalikda!</p>
   <button class="yp-hb" data-yp="xizmat">${ic('chart')}Tizim imkoniyatlari ${ic('arr')}</button></div>${M.kirish&&M.kirish.rasm?`<img src="${esc(M.kirish.rasm)}" alt="">`:''}</section>
-  <section class="yp-greet"><div class="yp-ar" lang="ar" dir="rtl">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><h2>Assalomu alaykum!</h2><p>${esc(M.nomi||'')} bilan har doim yuksak maqsad sari!</p><small>${t.wd}, ${t.lbl}</small></section>`;
+  <section class="yp-greet"><h2>Assalomu alaykum!</h2><p>${esc(M.nomi||'')} bilan har doim yuksak maqsad sari!</p><small>${t.wd}, ${t.lbl}</small></section>`;
  const kp=[['users',fN(k.st),"Jami o'quvchilar",'#1a5cff',`asosiy sinflarda · ota-onasi ulangan: ${pc(k.cn,k.st)}%`,''],
   ['cap',fN(k.tc),"Jami o'qituvchilar",'#12a150','akkauntlar',''],
   ['school',fN(nCls),'Sinflar soni','#7048e8',`+ ${nGr} ta fan va repetitor guruhi`,''],
