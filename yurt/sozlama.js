@@ -54,6 +54,7 @@ window.MAKTAB = {
     fikr: true,               // Fikr-mulohazalar
     oqituvchi_reyting: true,  // O'qituvchilar reytingi
     infografika: true,        // Oylik infografika va tangalar
-    kitoblar: false           // Fan darsliklari (fayl yuklash)
+    kitoblar: false,          // Fan darsliklari (fayl yuklash)
+    xodimlar: true            // Ota-ona parolini tiklash; xodimlar (buxgalter, kuzatuvchi, yordamchi admin) va ruxsatlar (platforma/modullar/xodimlar.js)
   }
 };

@@ -8,13 +8,13 @@ Object.assign(IC,{bell:IC.bell||'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 
 const fN=v=>Number(v||0).toLocaleString('ru-RU').replace(/,/g,' '),isA=()=>!!ME&&ME.role=='admin';
 
 // ===== Chap menyu: yozuvli, to'q ko'k (telefonda — pastki menyu) =====
-const AMENU=[['baholash','Sinflar va baholash'],['kelmagan','Davomat'],['gap',"Baho qo'yilmaganlar"],['oqrey',"O'quvchilar reytingi"],['ulanish','Ota-onalar'],['oqit',"O'qituvchilar"],['oreyting',"O'qituvchilar reytingi"],['tolov',"To'lovlar"],['taom','Taomnoma'],['fikr','Xabarlar'],['zaxira','Zaxira nusxa']];
+const AMENU=[['baholash','Sinflar va baholash'],['kelmagan','Davomat'],['gap',"Baho qo'yilmaganlar"],['oqrey',"O'quvchilar reytingi"],['ulanish','Ota-onalar'],['oqit',"O'qituvchilar"],['oreyting',"O'qituvchilar reytingi"],['tolov',"To'lovlar"],['taom','Taomnoma'],['fikr','Xabarlar'],['parol','Parolni tiklash'],['xodim','Xodimlar va ruxsatlar'],['zaxira','Zaxira nusxa']];
 function brand(){return `<div class="yp-brand"><img src="img/logo.png" alt=""><div><b>${esc(M.nomi||'')}</b><small>${esc(M.shior||'Bilim — kelajak kaliti')}</small></div></div>`}
 function promo(){return `<div class="yp-promo"><b>${esc(M.nomi||'')}</b><span>bilan maktabingiz yanada rivojlanadi!</span><i>${ic('rocket')}</i></div><div class="yp-copy">© ${new Date().getFullYear()} ${esc(M.nomi||'')}<br>Barcha huquqlar himoyalangan.</div>`}
 function paintSide(side){if(!ME){return}
  if(isA()){const L=ADM(),nb=S.ypN||0;
   side.innerHTML=brand()+`<button class="ys-nav yp-n${S.ah&&!S.as?' on':''}" data-ah="1">${ic('home')}<span class="yp-l">Boshqaruv paneli</span></button>`+
-   AMENU.map(([k,t])=>{const x=L.find(a=>a[1]==k);return x?`<button class="ys-nav yp-n${S.as==k?' on':''}" data-as="${k}">${ic(x[4])}<span class="yp-l">${esc(t)}</span>${k=='fikr'&&S.ypF?`<em>${S.ypF}</em>`:''}</button>`:''}).join('')+
+   AMENU.map(([k,t])=>{const x=L.find(a=>a[1]==k);return x?`<button class="ys-nav yp-n${S.as==k?' on':''}" data-as="${k}">${ic(x[4])}<span class="yp-l">${esc(t)}</span>${k=='fikr'&&S.ypF?`<em>${S.ypF}</em>`:k=='parol'&&S.ypP?`<em>${S.ypP}</em>`:''}</button>`:''}).join('')+
    `<span class="ys-sp"></span>${promo()}<button class="ys-nav yp-n" data-ys="out">${ic('logout')}<span class="yp-l">Chiqish</span></button>`}
  else{if(!side.querySelector('.yp-brand'))side.insertAdjacentHTML('afterbegin',brand());
   side.querySelectorAll('.ys-nav').forEach(b=>{if(!b.querySelector('.yp-l'))b.insertAdjacentHTML('beforeend',`<span class="yp-l">${esc(b.dataset.tip||'')}</span>`);b.classList.add('yp-n')});
@@ -28,7 +28,7 @@ watch();
 // ===== Yuqori panel: qidiruv, bildirishnoma, maktab, foydalanuvchi =====
 function topbar(){const h=document.querySelector('header .hin');if(!h||!ME)return;let t=h.querySelector('.yp-top');
  if(!t){h.insertAdjacentHTML('afterbegin','<div class="yp-top"></div>');t=h.querySelector('.yp-top')}
- const role=ME.role=='admin'?(ME._obs?'Kuzatuvchi':'Administrator'):ME._bux?'Buxgalter':ME.role=='teacher'?"O'qituvchi":ME.role=='parent'?'Ota-ona':'',nm=ME.full_name||role,ini=String(nm).trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+ const role=ME.role=='admin'?(ME._a2?'Yordamchi admin':ME._obs?'Kuzatuvchi':'Administrator'):ME._bux?'Buxgalter':ME.role=='teacher'?"O'qituvchi":ME.role=='parent'?'Ota-ona':'',nm=ME.full_name||role,ini=String(nm).trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
  t.innerHTML=(isA()?`<label class="yp-q">${ic('search')}<input id="ypq" placeholder="Qidiruv… (sinf, bo'lim)" autocomplete="off"><kbd>Ctrl K</kbd><div class="yp-res" id="ypr"></div></label>`:'<span class="yp-q yp-q0"></span>')+
   (isA()?`<button class="yp-bell" data-as="kelmagan" title="Bugungi xabarnomalar">${ic('bell')}${S.ypN?`<em>${S.ypN}</em>`:''}</button>`:'')+
   (M.portal?`<a class="yp-sch" href="${esc(M.portal)}" title="Maktabni almashtirish">${ic('school')}<b>${esc(M.nomi||'')}</b>${ic('chev')}</a>`:'')+
@@ -44,14 +44,15 @@ const _r=render;render=function(){const p=_r.apply(this,arguments);try{topbar()}
 const pc=(a,b)=>b?Math.min(100,Math.round(a/b*100)):0,iso=d=>d.toISOString().slice(0,10);
 async function dash(){const t=nowT(),ci=CL.filter(mainCls).map(c=>c.id),d0=new Date(Date.UTC(+t.d.slice(0,4),+t.d.slice(5,7)-1,+t.d.slice(8,10)));
  const from=iso(new Date(d0-29*864e5)),mFrom=t.d.slice(0,8)+'01';
- const[k,att,gr,ss,py,fb,gaps,fbN]=await Promise.all([admStats().catch(()=>({st:0,ph:0,cn:0,tc:0,pr:0})),
+ const[k,att,gr,ss,py,fb,gaps,fbN,pwR]=await Promise.all([admStats().catch(()=>({st:0,ph:0,cn:0,tc:0,pr:0})),
   ci.length?all(()=>sb.from('daily_scores').select('day,att,excused,students!inner(class_id)').gte('day',from).lte('day',t.d).not('att','is',null).in('students.class_id',ci).order('day')).catch(()=>[]):[],
   all(()=>sb.from('subject_scores').select('grade').gte('day',mFrom).not('grade','is',null).order('id')).catch(()=>[]),
   sb.from('subject_scores').select('subject,grade,updated_at,students(full_name)').order('updated_at',{ascending:false}).limit(5).then(r=>r.data||[],()=>[]),
   sb.from('payments').select('amount,method,received_at,students(full_name)').not('received_at','is',null).order('received_at',{ascending:false}).limit(4).then(r=>r.data||[],()=>[]),
   ON('fikr')?sb.from('feedback').select('category,created_at').order('created_at',{ascending:false}).limit(3).then(r=>r.data||[],()=>[]):[],
   sb.rpc('teacher_gaps',{p_day:t.d}).then(r=>r.error?null:r.data||[],()=>null),
-  ON('fikr')?sb.from('feedback').select('id',{count:'exact',head:true}).gte('created_at',t.d+'T00:00:00+05:00').then(r=>r.count||0,()=>0):0]);
+  ON('fikr')?sb.from('feedback').select('id',{count:'exact',head:true}).gte('created_at',t.d+'T00:00:00+05:00').then(r=>r.count||0,()=>0):0,
+  ON('xodimlar')&&ADM().some(a=>a[1]=='parol')?sb.rpc('pw_requests').then(r=>r.error?[]:r.data||[],()=>[]):[]]);
  // Davomat: kunlar bo'yicha kelganlar (yakshanbasiz, oxirgi 30 kun)
  const day={};att.forEach(r=>{const x=day[r.day]=day[r.day]||{k:0,y:0};if(+r.att==1)x.k++;else if(!r.excused)x.y++});
  const D=[];for(let i=29;i>=0;i--){const d=new Date(d0-i*864e5);if(d.getUTCDay()==0)continue;const s=iso(d);D.push({d:s,v:(day[s]||{}).k||0,y:(day[s]||{}).y||0,has:!!day[s]})}
@@ -59,7 +60,7 @@ async function dash(){const t=nowT(),ci=CL.filter(mainCls).map(c=>c.id),d0=new D
  const act=[...ss.map(r=>({t:r.updated_at,c:'#1a5cff',x:`${(r.students||{}).full_name||"O'quvchi"} — ${r.subject||'fan'} bahosi: ${r.grade??'—'}`})),
   ...py.map(r=>({t:r.received_at,c:'#12a150',x:`To'lov qabul qilindi: ${(r.students||{}).full_name||''}${r.amount?' — '+fN(r.amount)+" so'm":''}`})),
   ...fb.map(r=>({t:r.created_at,c:'#f08c00',x:`Yangi fikr-mulohaza: ${r.category||''}`}))].filter(x=>x.t).sort((a,b)=>String(b.t).localeCompare(String(a.t))).slice(0,6);
- S.ypN=(td.y?1:0)+(fbN?1:0)+(gaps&&gaps.some(g=>g.done<g.n)?1:0);S.ypF=fbN;
+ S.ypP=pwR.filter(r=>!r.active).length;S.ypN=(td.y?1:0)+(fbN?1:0)+(gaps&&gaps.some(g=>g.done<g.n)?1:0)+(S.ypP?1:0);S.ypF=fbN;
  return{t,k,D,td,G,act,gaps,fbN}}
 // Chiziqli grafik (bitta qator: kelganlar soni) — tegilganda sana va qiymat
 function lineSvg(D){const W=480,H=320,l=40,r=14,tp=16,b=30,mx=Math.max(10,...D.map(x=>x.v)),top=Math.ceil(mx/(mx>200?100:mx>50?20:5))*(mx>200?100:mx>50?20:5);
@@ -105,13 +106,13 @@ adminPage=async function(tk,quiet){if(S.as||!ME||ME.role!='admin')return _ap(tk,
   ['school',fN(nCls),'Sinflar soni','#7048e8',`+ ${nGr} ta fan va repetitor guruhi`,''],
   ['calcheck',fN(td.k),'Bugun kelganlar','#f0a400',t.h<9&&!td.k?'davomat 9:00 gacha belgilanadi':`${pc(td.k,k.st)}% · kelmadi: ${td.y}`,spark(D,'#f0a400')]];
  const gl=(gaps||[]).filter(g=>g.done<g.n),gt={};gl.forEach(g=>{(gt[g.user_id]=gt[g.user_id]||{n:g.teacher,m:0,c:[]}).m+=g.n-g.done;gt[g.user_id].c.push(g.class_name)});const GT=Object.values(gt).sort((a,b)=>b.m-a.m);
- const QA=[['baholash','edit','Baholarni kiritish','#1a5cff'],['kelmagan','calcheck','Davomatni ko\'rish','#12a150'],['gap','userx',"Baho qo'yilmaganlar",'#e5484d'],['oqrey','trophy',"O'quvchilar reytingi",'#f0a400'],['tolov','card',"To'lovlar",'#d6336c'],['zaxira','down','Zaxira nusxani yuklab olish','#475569']].filter(x=>has(x[0]));
+ const QA=[['baholash','edit','Baholarni kiritish','#1a5cff'],['kelmagan','calcheck','Davomatni ko\'rish','#12a150'],['gap','userx',"Baho qo'yilmaganlar",'#e5484d'],['oqrey','trophy',"O'quvchilar reytingi",'#f0a400'],['tolov','card',"To'lovlar",'#d6336c'],['parol','key','Parolni tiklash','#e8590c'],['zaxira','down','Zaxira nusxani yuklab olish','#475569']].filter(x=>has(x[0]));
  $('view').innerHTML=`<div class="yp-row yp-r1">${hero}</div>
  <div class="yp-kpi">${kp.map(([i,v,l,c,s,sp])=>`<div class="yp-k" style="--k:${c}"><span class="yp-ki">${ic(i)}</span><div><span class="yp-kl">${l}</span><b>${v}</b><small>${esc(s)}</small></div>${sp}</div>`).join('')}</div>
  <div class="yp-row yp-r3">
   <section class="yp-c"><div class="yp-h">${ic('chart')}<b>Davomat dinamikasi</b><span class="mut">Oxirgi 30 kun · kelganlar soni</span></div>${D.some(x=>x.has)?lineSvg(D):`<div class="yp-emp">${ic('calcheck')}<b>Hali davomat belgilanmagan</b><span class="mut">Sinf rahbarlari davomatni belgilashi bilan grafik paydo bo'ladi.</span></div>`}</section>
   <section class="yp-c"><div class="yp-h">${ic('pie')}<b>Baholar bo'yicha tahlil</b><span class="mut">${MON[+t.d.slice(5,7)-1]} · fan baholari</span></div>${donut(G)}</section>
-  <section class="yp-c"><div class="yp-h">${ic('bolt')}<b>Tezkor amallar</b></div><div class="yp-qa">${QA.map(([k2,i,n,c])=>`<button data-as="${k2}" style="--k:${c}">${ic(i)}<span>${n}</span>${ic('arr')}</button>`).join('')}</div></section></div>
+  <section class="yp-c"><div class="yp-h">${ic('bolt')}<b>Tezkor amallar</b></div><div class="yp-qa">${QA.map(([k2,i,n,c])=>`<button data-as="${k2}" style="--k:${c}">${ic(i)}<span>${n}${k2=='parol'&&S.ypP?` <em class="yp-qn">${S.ypP} ta so'rov</em>`:''}</span>${ic('arr')}</button>`).join('')}</div></section></div>
  <div class="yp-row yp-r4">
   <section class="yp-c"><div class="yp-h">${ic('clock')}<b>So'nggi faollik</b></div>${act.length?`<ul class="yp-act">${act.map(x=>`<li><i style="background:${x.c}"></i><time>${dm(x.t)}</time><span>${esc(x.x)}</span></li>`).join('')}</ul>`:`<div class="yp-emp"><span class="mut">Hozircha faollik yo'q.</span></div>`}</section>
   <section class="yp-c"><div class="yp-h">${ic('userx')}<b>Bugun baholanmaganlar</b>${has('gap')?`<button class="yp-lk" data-as="gap">Barchasi ${ic('arr')}</button>`:''}</div>

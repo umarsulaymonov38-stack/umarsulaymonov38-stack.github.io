@@ -4,7 +4,14 @@
 //  guruh o'qituvchisiga ota-ona telefoni; admin: baho qo'yilmaganlar, davomat to'liq emas, to'lov (naqd/karta, yillik,
 //  kvitansiya), hisobot, xarajatlar; buxgalter va kuzatuvchi profillari.
 // Eslatma: bu fayl yadrodagi payView va payHtml ni almashtiradi (barcha sinflar bir sahifada).
-const YBUX=()=>!!ME&&!!ME._bux,YOBS=()=>!!ME&&!!ME._obs,DNS=['Du','Se','Ch','Pa','Ju','Sh'];
+const YBUX=()=>!!ME&&!!ME._bux,YOBS=()=>!!ME&&!!ME._obs,
+ // Xodimga bosh admin bergan qo'shimcha ruxsat (bosh admin — hammasiga). Baza ham tekshiradi: yurt/sql/19-parol-va-xodimlar.sql
+ YPERM=window.YPERM=k=>!!ME&&((ME.role=='admin'&&!ME._obs)||(ME.perms||[]).includes(k)),
+ PTBL={taom:['menu'],fikr:['feedback'],telefon:['students','student_private'],baho:['daily_scores','subject_scores','rep_daily','score_changes'],tolov:['payments','expenses']},
+ PRPC={telefon:/^(set_parent_phone|set_student_name|add_student|set_group_phone)$/,tolov:/^(set_yearly|close_pay_report)$/},
+ PSC={taom:['taom'],fikr:['fikr'],tolov:['tolov'],parol:['parol'],zaxira:['zaxira'],telefon:['ulanish']},
+ roOk=t=>Object.keys(PTBL).some(k=>YPERM(k)&&PTBL[k].includes(t)),roRpc=f=>Object.keys(PRPC).some(k=>YPERM(k)&&PRPC[k].test(f)),
+ roSec=()=>(S.as&&Object.keys(PSC).some(k=>YPERM(k)&&PSC[k].includes(S.as)))||(!S.as&&!S.ah&&(YPERM('baho')||YPERM('telefon'))),DNS=['Du','Se','Ch','Pa','Ju','Sh'];
 const allQ=async mk=>{let out=[];for(let f=0;;f+=1000){const{data,error}=await mk().range(f,f+999);if(error)return out;out=out.concat(data||[]);if((data||[]).length<1000)return out}};
 const RO_ERR={message:"👁 Kuzatuvchi rejimi: faqat ko'rish mumkin — o'zgartirib bo'lmaydi.",code:'RO'};
 function roFake(){const r={data:null,error:RO_ERR,count:null,status:403};roNote();const p=new Proxy(function(){},{get(_,k){if(k==='then')return(a,b)=>Promise.resolve(r).then(a,b);return()=>p},apply(){return p}});return p}
@@ -13,13 +20,13 @@ const RO_RPC=/^(teacher_answer|tk_ignore|parent_pw_mark|switch_kid|parent_ask|se
 // O'z telefoniga bildirishnoma yoqish — ruxsat (bu ma'lumotni o'zgartirish emas)
 const RO_OK=/^(push_public_key|push_fn_url|push_test)$/,RO_TBL=['push_subs'];
 function obsMode(){if(sb.__ro)return;sb.__ro=1;document.body.classList.add('obs');
- const of=sb.from.bind(sb);sb.from=t=>{const b=of(t);if(!RO_TBL.includes(t))['insert','update','upsert','delete'].forEach(m=>b[m]=()=>roFake());return b};
- const orpc=sb.rpc.bind(sb);sb.rpc=(f,a,o)=>RO_RPC.test(f)&&!RO_OK.test(f)?roFake():orpc(f,a,o);
+ const of=sb.from.bind(sb);sb.from=t=>{const b=of(t);if(!RO_TBL.includes(t)&&!roOk(t))['insert','update','upsert','delete'].forEach(m=>b[m]=()=>roFake());return b};
+ const orpc=sb.rpc.bind(sb);sb.rpc=(f,a,o)=>RO_RPC.test(f)&&!RO_OK.test(f)&&!roRpc(f)?roFake():orpc(f,a,o);
  if(sb.functions)sb.functions.invoke=async()=>{roNote();return{data:null,error:RO_ERR}};
  if(sb.storage){const os=sb.storage.from.bind(sb.storage);sb.storage.from=b=>{const x=os(b);['upload','remove','update','move'].forEach(m=>x[m]=async()=>{roNote();return{data:null,error:RO_ERR}});return x}}
- const lock=()=>document.querySelectorAll('#view table :is(input,select,textarea,button.att,button.ratt):not([data-ro]),#view .tch :is(input,select,textarea):not([data-ro])').forEach(e=>{e.setAttribute('data-ro','');e.disabled=true});
+ const lock=()=>roSec()?0:document.querySelectorAll('#view table :is(input,select,textarea,button.att,button.ratt):not([data-ro]),#view .tch :is(input,select,textarea):not([data-ro])').forEach(e=>{e.setAttribute('data-ro','');e.disabled=true});
  new MutationObserver(lock).observe($('view'),{childList:true,subtree:true});lock();
- if(!$('obsBn'))document.body.insertAdjacentHTML('afterbegin',`<div id="obsBn" class="obsBn">👁 <b>Kuzatuvchi rejimi</b> — barcha ma'lumotlarni ko'rasiz, o'zgartirish mumkin emas</div>`)}
+ if(!$('obsBn'))document.body.insertAdjacentHTML('afterbegin',`<div id="obsBn" class="obsBn">${ME._a2?'🛡 <b>Yordamchi admin</b>':'👁 <b>Kuzatuvchi rejimi</b>'} — barcha ma'lumotlarni ko'rasiz${(ME.perms||[]).length?', o\'zgartirish faqat sizga berilgan ruxsatlar doirasida':', o\'zgartirish mumkin emas'}</div>`)}
 async function attGapHtml(t,M){const hd=`<b>${ic('clip')}Davomat to'liq emas</b>`;
  if(t.wd=='Yakshanba')return `<div class="card sd dv">${hd}<p class="mut">Bugun dam olish kuni.</p></div>`;
  const ci=M.map(c=>c.id);if(!ci.length)return'';
@@ -168,7 +175,7 @@ async function expHtml(){const k=S.xk||'kun',d=S.xd||today,m=S.xm||today.slice(0
  if(error)return `<div class="card"><p class="mut">${/expenses/.test(error.message||'')?"Xarajatlar bo'limi uchun Supabase'da <b>yangilanish-67</b> ni ishga tushiring.":esc(netMsg(error))}</p></div>`;
  const L=E||[],IN=I||[],sm=(X,m,f='amount')=>X.filter(r=>!m||r.method==m).reduce((q,r)=>q+(+r[f]||0),0),inC=sm(IN,'naqd'),inK=sm(IN,'karta'),exC=sm(L,'naqd'),exK=sm(L,'karta');
  const C={};L.forEach(r=>{const c=C[r.category]=C[r.category]||[0,0];c[0]++;c[1]+=+r.amount});const cats=Object.entries(C).map(([k,[n,v]])=>[k,n,v]).sort((x,y)=>y[2]-x[2]);S.exP={ttl,L,inC,inK,exC,exK,cats};
- const can=(ME.role=='admin'&&!YOBS())||YBUX(),tm=r=>k=='kun'?new Date(r.created_at).toLocaleTimeString('uz-UZ',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}):fd2(r.day);S.exm=S.exm||'naqd';
+ const can=(ME.role=='admin'&&!YOBS())||YBUX()||YPERM('tolov'),tm=r=>k=='kun'?new Date(r.created_at).toLocaleTimeString('uz-UZ',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}):fd2(r.day);S.exm=S.exm||'naqd';
  return `<div class="card"><div class="top"><b>${ic('minus')}Kunlik xarajatlar</b><span class="pfl" style="margin:0 0 0 auto"><button class="tab xkb ${k=='kun'?'on':''}" data-k="kun">Kunlik</button><button class="tab xkb ${k=='oy'?'on':''}" data-k="oy">Oylik</button></span>${k=='kun'?`<input type="date" id="xd" value="${d}" max="${today}">`:`<input type="month" id="xm" value="${m}" max="${today.slice(0,7)}">`}</div>
  <div class="bxk" style="margin:10px 0 0"><div style="--c:#2f9e44"><small>Tushum</small><b>${fmtN(inC+inK)}</b><span class="mut">💵 ${fmtN(inC)} · 💳 ${fmtN(inK)}</span></div><div style="--c:#e03131"><small>Xarajat</small><b>${fmtN(exC+exK)}</b><span class="mut">💵 ${fmtN(exC)} · 💳 ${fmtN(exK)}</span></div><div style="--c:#1971c2"><small>Kassa qoldig'i (naqd)</small><b>${fmtN(inC-exC)}</b><span class="mut">naqd tushum − naqd xarajat</span></div></div></div>
  ${can&&k=='kun'?`<div class="card exf"><b>${ic('edit')}Yangi xarajat — ${fd2(d)}</b><div class="exg"><label>Turi<select class="fld" id="exCat"><option value="">— tanlang —</option>${EXC.map(c=>`<option>${esc(c)}</option>`).join('')}</select></label>
@@ -255,7 +262,7 @@ async function repHtml(){const[a,b]=rPer(),per=a.slice(0,S.rk=='kun'?10:7);
  const rows=cl?cl.rows:R||[];S.rep={rows,cl};const ttl=S.rk=='kun'?fd2(a)+' kungi':MON[+a.slice(5,7)-1]+' '+a.slice(0,4)+' oylik',done=b<=today;
  const st=cl?`<div class="wkn" style="background:#ebfbee;border-color:#8ce99a;color:#2b8a3e">🔒 <span>Hisobot <b>yopilgan</b>: ${esc(cl.closed_name||'')} · ${new Date(cl.closed_at).toLocaleString('uz-UZ',{timeZone:TZ,day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}. Bu davr to'lovlarini o'zgartirib bo'lmaydi.</span></div>`:'';
  return `<p class="mut">${ttl} hisobot · to'langan sana bo'yicha · yillik to'lov bir marta hisoblanadi.</p>${st}${repBody(rows,cl,false)}
- <div class="top" style="margin-top:12px"><button class="tab" id="repPdf">${ic('printer')}PDF</button>${!cl&&((ME.role=='admin'&&!YOBS())||YBUX())?`<button class="btn" id="repClose"${done?'':' disabled title="Davr hali tugamagan"'}>🔒 Hisobotni yopish</button>`:''}${cl&&ME.role=='admin'&&!YOBS()?`<button class="tab" id="repOpen" data-id="${cl.id}">↩ Qayta ochish</button>`:''}</div>`}
+ <div class="top" style="margin-top:12px"><button class="tab" id="repPdf">${ic('printer')}PDF</button>${!cl&&((ME.role=='admin'&&!YOBS())||YBUX()||YPERM('tolov'))?`<button class="btn" id="repClose"${done?'':' disabled title="Davr hali tugamagan"'}>🔒 Hisobotni yopish</button>`:''}${cl&&ME.role=='admin'&&!YOBS()?`<button class="tab" id="repOpen" data-id="${cl.id}">↩ Qayta ochish</button>`:''}</div>`}
 // To'lov statistikasi (admin va buxgalter)
 function payStats(){const P=S.pay||[];if(!P.length)return '';const pd=P.filter(x=>x.paid).length,pc=Math.round(pd/P.length*100),by={};P.forEach(x=>{const b=by[x.c]=by[x.c]||[0,0];b[0]++;if(x.paid)b[1]++});
  const grp=g=>{const L=P.filter(x=>grpOf(CL.find(c=>c.id==x.c)||{})==g),p=L.filter(x=>x.paid).length;return L.length?`<div><b>${Math.round(p/L.length*100)}%</b>${g==1?"Boshlang'ich (1–4)":'Yuqori ('+YQ+')'}: ${p}/${L.length}</div>`:''};
@@ -332,11 +339,11 @@ Object.assign(IC,{minus:IC.minus||'<path d="M5 12h14"/>',printer:IC.printer||'<p
 
 // --- Kirish: buxgalter va kuzatuvchi akkauntlari ---
 const _lm=loadMe;
-loadMe=async function(uid){let p=null;try{const r=await sb.from('profiles').select('role,obs,bux').eq('id',uid).maybeSingle();p=r.data}catch(e){}
- if(!p||p.role!='teacher'||!(p.obs||p.bux))return _lm.apply(this,arguments);
+loadMe=async function(uid){let p=null;try{let r=await sb.from('profiles').select('role,obs,bux,admin2,perms').eq('id',uid).maybeSingle();if(r.error)r=await sb.from('profiles').select('role,obs,bux').eq('id',uid).maybeSingle();p=r.data}catch(e){}
+ if(!p||p.role!='teacher'||!(p.obs||p.bux||p.admin2))return _lm.apply(this,arguments);
  try{ME=await q(sb.from('profiles').select('*').eq('id',uid).single());CL=await q(sb.from('classes').select('id,name,kind,grp,grade,subject,teacher_name').order('id'))}catch(e){retryView(e);return}
  $('out').style.display='';document.body.classList.add('in');flash('');
- if(ME.obs){ME.role='admin';ME._obs=1;window.ADM_SKIP=['tolov','zaxira'];obsMode();await loadLogos().catch(()=>{});S.tab=0;S.ah=true;S.as=null;render();return}
+ ME.perms=ME.perms||[];if(ME.obs||ME.admin2){ME.role='admin';ME._obs=1;ME._a2=!!ME.admin2&&!ME.obs;window.ADM_SKIP=['tolov'].concat(ME.perms.includes('zaxira')?[]:['zaxira']);obsMode();await loadLogos().catch(()=>{});S.tab=0;S.ah=true;S.as=null;render();return}
  ME._bux=1;ME.roles={};ME.subj={};ME.cls=[];S.bt=S.bt||'home';render()};
 
 // --- Admin bo'limlari ---
@@ -406,7 +413,7 @@ subjCard=async function(a,b){const{data,error}=await sb.rpc('parent_grades',{p_f
 // --- Tugmalar ---
 document.addEventListener('click',e=>{if(e.target.closest('[data-t]'))S.yt=null},true);
 document.addEventListener('click',async e=>{const t=e.target.closest('button,[data-dvc],.pmk,[data-yt]');if(!t||!ME)return;
- if(YOBS()&&t.matches('.pmk,.ypay,.pyr,.exm,#exAdd,.exDel,#repClose,#repOpen,.mday')){e.stopImmediatePropagation();roNote();return}
+ if(YOBS()&&!(YPERM('tolov')&&!t.matches('#repOpen,.mday'))&&t.matches('.pmk,.ypay,.pyr,.exm,#exAdd,.exDel,#repClose,#repOpen,.mday')){e.stopImmediatePropagation();roNote();return}
  if(t.dataset.yt){S.yt=t.dataset.yt;t.parentNode.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b==t));await ytShow();return}
  if(t.dataset.dvc){S.ah=false;S.as=null;S.cls=+t.dataset.dvc;S.tab=0;S.date=nowT().d;scrollTo(0,0);render();return}
  if(t.classList.contains('rkb')){S.rk=t.dataset.k;render();return}
