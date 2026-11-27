@@ -4,6 +4,8 @@
 //  guruh o'qituvchisiga ota-ona telefoni; admin: baho qo'yilmaganlar, davomat to'liq emas, to'lov (naqd/karta, yillik,
 //  kvitansiya), hisobot, xarajatlar; buxgalter va kuzatuvchi profillari.
 // Eslatma: bu fayl yadrodagi payView va payHtml ni almashtiradi (barcha sinflar bir sahifada).
+// Tartib-intizom izohi (Yuksalishdagi kabi): guruhda tartib-intizom 5 dan past bo'lsa, qaysi band buzilgani — ota-onaga ko'rinadi
+const BB=[[1,"Tartib qoidaga amal qilmaslik"],[2,"Atrofdagilar va ustozlarni hurmat qilmaslik"],[3,"O'z joyini toza saqlamaslik"]],bbT=k=>(BB.find(b=>b[0]==k)||[])[1]||'',bbNeed=r=>r.behavior!=null&&+r.behavior<5&&!r.beh_band;
 const YBUX=()=>!!ME&&!!ME._bux,YOBS=()=>!!ME&&!!ME._obs,
  // Xodimga bosh admin bergan qo'shimcha ruxsat (bosh admin — hammasiga). Baza ham tekshiradi: yurt/sql/19-parol-va-xodimlar.sql
  YPERM=window.YPERM=k=>!!ME&&((ME.role=='admin'&&!ME._obs)||(ME.perms||[]).includes(k)),
@@ -311,7 +313,7 @@ function subIcon(n){n=(n||'').toLowerCase();if(/matem/.test(n))return '📐';if(
 async function pgrCard(){const t=today,{data,error}=await sb.rpc('parent_grades',{p_from:t,p_to:t});if(error)return '';const L=(data||[]).filter(x=>x.student_id==ME.student_id).sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
  const tm=x=>x.at?new Date(x.at).toLocaleTimeString('uz-UZ',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}):'';
  return `<div class="card pgr" id="pgr"><div class="top"><span class="pti" style="--c:#1c7ed6">${ic('layers')}</span><div><b>Bugungi baholar</b><br><span class="mut"><i class="livedot"></i>Jonli · fan va guruh o'qituvchilari qo'ygan baholar</span></div><button class="tab" data-pv="fan" style="margin-left:auto">Barchasi →</button></div>
- ${L.length?L.map(x=>`<div class="pgri"><span class="pgs"><b>${esc(x.subject)}</b><small>${esc(x.teacher||'')}${tm(x)?' · '+tm(x):''}</small></span><span class="pgv">${attIc(x)}${x.hw!=null?`<span class="pgc">UV ${x.hw}</span>`:''}${x.activity!=null?`<span class="pgc">F ${x.activity}</span>`:''}${x.src=='guruh'&&x.behavior!=null?`<span class="pgc">T ${x.behavior}</span>`:''}${x.grade!=null?`<span class="pgc pgb ${x.grade<=2?'bd':x.grade==5?'ok':''}">${x.src=='rep'?'Topshiriq':'Baho'} ${x.grade}</span>`:''}</span></div>`).join('')
+ ${L.length?L.map(x=>`<div class="pgri"><span class="pgs"><b>${esc(x.subject)}</b><small>${esc(x.teacher||'')}${tm(x)?' · '+tm(x):''}</small>${x.src=='guruh'&&x.beh_band?`<small class="bbx">⚠ Tartib: ${esc(bbT(x.beh_band))}</small>`:''}</span><span class="pgv">${attIc(x)}${x.hw!=null?`<span class="pgc">UV ${x.hw}</span>`:''}${x.activity!=null?`<span class="pgc">F ${x.activity}</span>`:''}${x.src=='guruh'&&x.behavior!=null?`<span class="pgc${x.beh_band?' bd':''}" title="${x.beh_band?esc(bbT(x.beh_band)):'Tartib-intizom'}">T ${x.behavior}</span>`:''}${x.grade!=null?`<span class="pgc pgb ${x.grade<=2?'bd':x.grade==5?'ok':''}">${x.src=='rep'?'Topshiriq':'Baho'} ${x.grade}</span>`:''}</span></div>`).join('')
   :`<p class="mut" style="margin:8px 0 0">Bugun hali baho qo'yilmagan. O'qituvchi baho qo'yishi bilan shu yerda ko'rinadi.</p>`}
  <p class="mut" style="font-size:11.5px;margin:6px 0 0">UV — uyga vazifa, F — faollik, T — tartib-intizom (1–5).</p></div>`}
 function pgrTick(){clearTimeout(S.pgrTm);S.pgrTm=setTimeout(async()=>{const el=$('pgr');if(el&&ME&&ME.role=='parent'&&!S.pv){const h=await pgrCard().catch(()=>null);if(h&&$('pgr'))$('pgr').outerHTML=h;pgrTick()}},60000)}
@@ -380,7 +382,18 @@ render=async function(){
  const r=await _r.apply(this,arguments);
  try{await after()}catch(e){}
  return r};
-async function after(){if(!ME)return;const v=$('view');if(!v)return;
+// Guruh baholash jadvali: «Tartib-intizom» katagi ostida izoh (band) tanlash
+function bbInject(){if(!ME||ME.role=='parent'||S.as||S.pv)return;const c=CL.find(x=>x.id==S.cls);if(!c||!c.grp||c.kind=='rep')return;
+ const L=[...document.querySelectorAll('#view input.sc[data-k="behavior"][data-i]')];if(!L.length)return;
+ L.forEach(inp=>{const n=inp.nextElementSibling;if(n&&n.classList.contains('bb'))return;const id=inp.dataset.i,r=S.sc[id]||{};
+  inp.insertAdjacentHTML('afterend',`<select class="bb${bbNeed(r)?' need':''}" data-bi="${id}" title="Tartib-intizom bo'yicha izoh — ota-onaga ko'rinadi"><option value="">Izoh: yo'q</option>${BB.map(([k,t])=>`<option value="${k}"${r.beh_band==k?' selected':''}>${k}-band: ${t}</option>`).join('')}</select>`)});
+ const top=L[0].closest('.card').querySelector('.top');if(top&&!top.querySelector('.bbh'))top.insertAdjacentHTML('beforeend',`<span class="mut bbh">Tartib-intizom 5 dan past bo'lsa, ostidagi ro'yxatdan <b>izoh</b> (qaysi qoida buzilgani) tanlang — ota-onaga ko'rinadi.</span>`)}
+document.addEventListener('input',e=>{const t=e.target;if(!t.matches||!t.matches('input.sc[data-k="behavior"][data-i]'))return;setTimeout(()=>{const x=document.querySelector(`.bb[data-bi="${t.dataset.i}"]`);if(x)x.classList.toggle('need',bbNeed(S.sc[t.dataset.i]||{}))},0)});
+document.addEventListener('change',async e=>{const t=e.target;if(!t.classList||!t.classList.contains('bb')||!ME)return;const id=t.dataset.bi,v=t.value?+t.value:null,r=S.sc[id]||(S.sc[id]={student_id:id,day:S.date}),old=r.beh_band??null;
+ r.beh_band=v;t.classList.toggle('need',bbNeed(r));const{error}=await sb.from('daily_scores').upsert({student_id:id,day:S.date,beh_band:v},{onConflict:'student_id,day'});
+ if(error){r.beh_band=old;t.value=old??'';t.classList.toggle('need',bbNeed(r));flash(/beh_band/.test(error.message||'')?"Avval Supabase'da yurt/sql/20-boshlangich-fan-guruhlari.sql ni ishga tushiring":netMsg(error));return}
+ flash(v?"✅ Izoh saqlandi — ota-onaga ko'rinadi":"Izoh olib tashlandi")});
+async function after(){if(!ME)return;const v=$('view');if(!v)return;bbInject();
  // Ota-ona bosh sahifasi: Bugungi baholar va Reyting
  if(ME.role=='parent'&&!S.pv){if(v.querySelector('#rkbox'))return;
   // Yuksalishdagi tartib: profil (ob-havo bilan) → Reyting va o'rinlar → ogohlantirishlar → Bugungi baholar → so'rovnomalar → Xizmatlar
@@ -408,7 +421,11 @@ async function ytShow(){const v=$('view'),card=v.querySelector('.card');if(!card
 subjCard=async function(a,b){const{data,error}=await sb.rpc('parent_grades',{p_from:a,p_to:b});if(error)return '';const r=(data||[]).filter(x=>x.student_id==ME.student_id).sort((x,y)=>(y.day+(y.at||'')).localeCompare(x.day+(x.at||'')));if(!r.length)return '';
  const g=r.filter(x=>x.grade!=null),av=g.length?Math.round(g.reduce((q,x)=>q+ +x.grade,0)/g.length*10)/10:null,tm=x=>x.at?new Date(x.at).toLocaleTimeString('uz-UZ',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}):'';
  return `<div class="card"><b>${ic('layers')}Barcha baholar — fan, guruh va repetitor</b>${av!=null?`<p class="mut">O'rtacha baho: <b>${av}</b> (${g.length} ta baho)</p>`:''}<div class="wrap"><table><tr><th>Sana</th><th class="l">Fan / guruh</th><th class="l">O'qituvchi</th><th>Davomat</th><th>Uyga vazifa</th><th>Faollik</th><th>Tartib</th><th>Baho</th></tr>
- ${r.map(x=>`<tr><td>${x.day.slice(8)}.${x.day.slice(5,7)}${tm(x)?`<br><small class="mut">${tm(x)}</small>`:''}</td><td class="l">${esc(x.subject)}</td><td class="l">${esc(x.teacher||'')}</td><td>${attIc(x)}</td><td>${x.hw??'—'}</td><td>${x.activity??'—'}</td><td>${x.src=='guruh'&&x.behavior!=null?x.behavior:'—'}</td><td class="tot">${x.grade!=null?`<b class="${x.grade<=2?'bdx':x.grade==5?'okx':''}">${x.grade}</b>`:'—'}</td></tr>`).join('')}</table></div></div>`};
+ ${r.map(x=>`<tr><td>${x.day.slice(8)}.${x.day.slice(5,7)}${tm(x)?`<br><small class="mut">${tm(x)}</small>`:''}</td><td class="l">${esc(x.subject)}</td><td class="l">${esc(x.teacher||'')}</td><td>${attIc(x)}</td><td>${x.hw??'—'}</td><td>${x.activity??'—'}</td><td>${x.src=='guruh'&&x.behavior!=null?x.behavior:'—'}${x.src=='guruh'&&x.beh_band?`<br><small class="bbx">${esc(bbT(x.beh_band))}</small>`:''}</td><td class="tot">${x.grade!=null?`<b class="${x.grade<=2?'bdx':x.grade==5?'okx':''}">${x.grade}</b>`:'—'}</td></tr>`).join('')}</table></div></div>`+bbStat(r)};
+// Ota-ona: guruhlardagi tartib-intizom statistikasi (davr bo'yicha)
+function bbStat(r){const b=r.filter(x=>x.src=='guruh'&&x.behavior!=null);if(!b.length)return '';const ok=b.filter(x=>+x.behavior>=5).length,av=Math.round(b.reduce((q,x)=>q+ +x.behavior,0)/b.length*10)/10;
+ const c=BB.map(([k,t])=>[k,t,b.filter(x=>x.beh_band==k)]),bad=c.reduce((q,x)=>q+x[2].length,0);
+ return `<div class="card"><b>${ic('shield')}Tartib-intizom — fan guruhlarida</b><p class="mut">Baholangan <b>${b.length}</b> darsdan <b>${ok}</b> tasida tartib-intizom a'lo (5). O'rtacha: <b>${av}</b> / 5.</p>${bad?`<div class="bbs">${c.filter(x=>x[2].length).map(([k,t,L])=>`<div><b>${L.length} marta</b><span>${k}-band: ${esc(t)}</span><small class="mut">${esc([...new Set(L.map(x=>x.subject))].join(', '))}</small></div>`).join('')}</div>`:`<p class="okx" style="margin:0">✅ Tartib-intizom bo'yicha izoh yo'q — barakalla!</p>`}</div>`}
 
 // --- Tugmalar ---
 document.addEventListener('click',e=>{if(e.target.closest('[data-t]'))S.yt=null},true);

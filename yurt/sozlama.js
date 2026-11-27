@@ -18,11 +18,12 @@ window.MAKTAB = {
   sportsiz_dan: 2,                      // Sport yo'q sinflar: 2-sinfdan yuqori (1-sinfda Sport bor) — yurt/sql/12-sportsiz-2-4.sql
   mezon_nomlari: { behavior: 'Odoblar' }, // kunlik vazifalar nomlari
   faolliksiz: true,                     // 1- va 2-guruh sinflarida «Fanlardagi faollik» yo'q (yurt/sql/11-faolliksiz.sql)
-  qoshimcha_guruhlar: [                 // [raqam, nomi, belgi, fan nomi (boshi)]
+  qoshimcha_guruhlar: [                 // [raqam, nomi, belgi, fan nomi (boshi), sinflar oralig'i (ixtiyoriy)]
     [7, '7-guruh: Rus tili', 'globe', '^rus'],                                                  // yurt/sql/13-rus-tili.sql
-    [8, '8-guruh: 8–9-sinflar fanlari', 'flask', '^(kimyo|biologiya|tarix|fizika|geografiya)']  // yurt/sql/15-fanlar-8-9.sql
+    [8, '8-guruh: 8–9-sinflar fanlari', 'flask', '^(kimyo|biologiya|tarix|fizika|geografiya)'], // yurt/sql/15-fanlar-8-9.sql
+    [9, "9-guruh: Boshlang'ich sinflar fan guruhlari", 'bag', '^(arab|matem|ingliz)', [1, 4]] // yurt/sql/20-boshlangich-fan-guruhlari.sql
   ],
-  davomatsiz_guruhlar: [3, 7, 8],        // Matematika, Rus tili, 8-guruh fanlari: davomat yo'q (yurt/sql/18-ibn-sino-va-guruhlar.sql)
+  davomatsiz_guruhlar: [3, 7, 8, 9],     // Matematika, Rus tili, 8-guruh fanlari, boshlang'ich fan guruhlari: davomat yo'q (18- va 20-SQL)
   guruh_nomi: 'toliq',                  // fan guruhlari ro'yxatda to'liq nomi bilan ko'rinadi (masalan, «6-7-sinflar Ingliz tili B1»)
 
   kirish: {

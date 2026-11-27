@@ -101,7 +101,8 @@ const YQ=M.yuqori_sinflar||'5–10';
 const TILR=M.til_fanlar?new RegExp(M.til_fanlar,'i'):/^(arab|koreys)/i,TILN=M.til_nomi||'Arab va Koreys tili';  // yuqori sinflar oralig'i (sozlamadan)
 const gradeOf=c=>+c.grade||parseInt(c.name)||0;
 // Qo'shimcha fan guruhlari sozlamadan: [raqam, nomi, belgi, fan nomi (boshi)], masalan Yurt: [7,'7-guruh: Rus tili','globe','^rus']
-const XG=(M.qoshimcha_guruhlar||[]).map(g=>[g[0],g[1],g[2],new RegExp(g[3],'i')]),xgOf=c=>(XG.find(g=>c.grp&&g[3].test(c.subject||''))||[])[0];
+// Qo'shimcha guruh: fan nomi bo'yicha, ixtiyoriy ravishda sinflar oralig'i bilan (masalan, [1, 4] — faqat boshlang'ich sinflar guruhlari)
+const XG=(M.qoshimcha_guruhlar||[]).map(g=>[g[0],g[1],g[2],new RegExp(g[3],'i'),g[4]]),xgOf=c=>(XG.find(g=>c.grp&&g[3].test(c.subject||'')&&(!g[4]||(gradeOf(c)>=g[4][0]&&gradeOf(c)<=g[4][1])))||[])[0];
 const isLang=c=>TILR.test(c.subject||''),grpOf=c=>c.kind=='rep'?5:xgOf(c)||(isLang(c)?6:c.grp?(/^matem/i.test(c.subject||'')?3:4):gradeOf(c)&&gradeOf(c)<=4?1:2);
 const GR=[[1,"1-guruh: Boshlang'ich sinflar (1–4)",'bag'],[2,'2-guruh: Yuqori sinflar ('+YQ+')','cap'],[3,'3-guruh: Matematika','layers'],[4,'4-guruh: Ingliz tili','book'],[5,'5-guruh: Repetitor guruhlar','target'],[6,'6-guruh: '+(M.til_nomi||'Arab tili va Koreys tili'),'globe']],GRT=g=>(GR.find(x=>x[0]==g)||[])[1]||'';
 XG.forEach(g=>GR.push([g[0],g[1],g[2]]));
