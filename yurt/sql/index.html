@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uz"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Yurt School — SQL yangilanishlar</title>
+<link rel="icon" href="../img/icon-192.png">
+<style>
+:root{--bg:#f4f7fc;--card:#fff;--ink:#14213d;--mut:#64748b;--ln:#e3e8f2;--b1:#1a5cff;--b2:#0b47d9;--ok:#12a150;--new:#e8590c}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#16213a;--ink:#e6ecf8;--mut:#94a3b8;--ln:#263352}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:860px;margin:0 auto;padding:20px 16px 48px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+header img{width:52px;height:52px;border-radius:14px;background:#fff;padding:4px;box-shadow:0 4px 14px rgba(20,33,61,.15)}
+h1{margin:0;font-size:22px}h1+p{margin:2px 0 0;color:var(--mut);font-size:14px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:16px 18px;margin-bottom:12px;box-shadow:0 1px 2px rgba(20,33,61,.05)}
+.steps{margin:0;padding-left:22px}.steps li{margin:6px 0}
+.go{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:11px 18px;border-radius:12px;background:linear-gradient(135deg,#3d7bff,var(--b2));color:#fff;font-weight:700;text-decoration:none}
+h2{font-size:15px;margin:22px 4px 10px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.f{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:center}
+.n{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:16px;background:color-mix(in srgb,var(--b1) 12%,var(--card));color:var(--b1)}
+.f.new .n{background:color-mix(in srgb,var(--new) 14%,var(--card));color:var(--new)}
+.t b{display:block;font-size:15.5px}.t>span{display:block;color:var(--mut);font-size:13.5px}
+.tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:var(--new);color:#fff;font-size:11.5px;font-weight:700;vertical-align:2px}
+.bt{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:14px}
+.cp{background:var(--b1);color:#fff;min-width:130px}.cp.ok{background:var(--ok)}
+.vw{background:color-mix(in srgb,var(--b1) 10%,var(--card));color:var(--b1)}
+pre{grid-column:1/-1;margin:10px 0 0;max-height:360px;overflow:auto;padding:12px;border-radius:12px;background:#0f172a;color:#e2e8f0;font-size:12px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+details{margin-top:6px}summary{cursor:pointer;color:var(--mut);font-weight:600;padding:6px 4px}
+.note{font-size:13.5px;color:var(--mut)}
+@media (max-width:600px){.f{grid-template-columns:auto 1fr}.bt{grid-column:1/-1;justify-content:stretch}.bt button{flex:1}}
+</style></head><body><div class="w">
+<header><img src="../img/logo.png" alt=""><div><h1>SQL yangilanishlar</h1><p>Yurt School · Supabase bazasi uchun</p></div></header>
+
+<div class="card"><b>Qanday ishga tushiriladi</b>
+<ol class="steps">
+<li>Kerakli fayl yonidagi <b>«Nusxalash»</b> tugmasini bosing — butun fayl nusxalanadi.</li>
+<li>Pastdagi tugma bilan Supabase SQL Editor'ni oching (yurt-school loyihasi).</li>
+<li>Bo'sh oynaga qo'ying (<b>Ctrl + V</b> yoki telefonda bosib turib «Вставить / Paste») va <b>Run</b> ni bosing.</li>
+<li>Pastda natija jadvali chiqsa — tayyor. Qizil xato chiqsa, skrinshot qilib yuboring.</li>
+</ol>
+<a class="go" id="sqle" href="https://supabase.com/dashboard/project/qthlpzkcxdvgpsnjgdrx/sql/new" target="_blank" rel="noopener">Supabase SQL Editor'ni ochish ↗</a>
+<p class="note">Barcha fayllarni qayta ishga tushirish xavfsiz: oldin bajarilgan bo'lsa, hech narsa buzilmaydi. Fayllarni raqami tartibida ishga tushiring.</p></div>
+
+<h2>Oxirgi yangilanishlar</h2><div id="new"></div>
+<details><summary>Oldingi fayllar (allaqachon ishga tushirilgan)</summary><div id="old"></div></details>
+</div>
+<script>
+// Yangi SQL fayl qo'shilganda shu ro'yxatga qo'shiladi: [fayl, sarlavha, tavsif, yangi?]
+const F=[
+ ['20-boshlangich-fan-guruhlari.sql',"Boshlang'ich sinflar fan guruhlari","Har bir 1–4-sinfga Arab tili, Matematika, Ingliz tili guruhlari; o'quvchilar ko'chiriladi; tartib-intizom izohi",1],
+ ['19-parol-va-xodimlar.sql',"Parolni tiklash va xodimlar","Ota-ona parolini kod orqali tiklash; buxgalter, kuzatuvchi, yordamchi admin ruxsatlari",1],
+ ['18-ibn-sino-va-guruhlar.sql',"5-Ibn Sino va 8–9-sinf guruhlari","Yangi sinf, 8/9-sinf fan guruhlariga o'quvchilar, o'quvchilar reytingi, davomatsiz guruhlar",1],
+ ['17-reyting-tuzatish.sql',"Reyting xatosini tuzatish","Ota-ona profilidagi «Reyting va o'rinlar» uchun",1],
+ ['16-yuksalish-imkoniyatlari.sql',"Yuksalish imkoniyatlari","To'lovlar, buxgalter, kuzatuvchi, baholanmaganlar, reyting"],
+ ['15-fanlar-8-9.sql',"8- va 9-sinf fan guruhlari","Kimyo, Biologiya, Tarix, Fizika, Geografiya"],
+ ['14-hammasi-birda.sql',"10–13 bitta faylda","Baholash qoidalari, faolliksiz, sportsiz, Rus tili"],
+ ['09-ingliz-5-sinf.sql',"5-sinf Ingliz tili",""],
+ ['08-fan-guruhlari.sql',"Fan guruhlari","Ingliz tili, Matematika, Ona tili guruhlari"],
+ ['07-bildirishnoma.sql',"Bildirishnomalar","Ota-ona telefoniga davomat xabari"],
+ ['06-arab-tili.sql',"Arab tili","Umumiy Arab tili guruhi"],
+ ['05-sinf-nomlari.sql',"Sinf nomlari va repetitorlar",""],
+ ['04-guruhlar-va-orinlar.sql',"Guruhlar va o'rinlar",""],
+ ['03-sinflar.sql',"Sinflar",""],
+ ['02-admin.sql',"Birinchi admin",""]];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),cache={};
+const get=async f=>cache[f]||(cache[f]=await fetch(f+'?v='+Date.now(),{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}));
+const row=([f,t,d,n])=>`<div class="card f${n?' new':''}" data-f="${f}"><span class="n">${f.slice(0,2)}</span><div class="t"><b>${esc(t)}${n?'<span class="tag">yangi</span>':''}</b><span>${esc(d||f)}</span></div>
+ <div class="bt"><button class="vw" data-v>Ko'rish</button><button class="cp" data-c>Nusxalash</button></div></div>`;
+document.getElementById('new').innerHTML=F.filter(x=>x[3]).map(row).join('');
+document.getElementById('old').innerHTML=F.filter(x=>!x[3]).map(row).join('');
+async function copy(t){try{await navigator.clipboard.writeText(t);return true}catch(e){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity=0;document.body.append(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove();return ok}}
+document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const c=b.closest('[data-f]'),f=c.dataset.f;
+ try{const t=await get(f);
+  if(b.hasAttribute('data-c')){const ok=await copy(t);b.classList.toggle('ok',ok);b.textContent=ok?'✓ Nusxalandi':"Ko'rish → belgilab nusxalang";
+   if(ok)setTimeout(()=>{b.classList.remove('ok');b.textContent='Nusxalash'},4000);else if(!c.querySelector('pre'))c.insertAdjacentHTML('beforeend',`<pre>${esc(t)}</pre>`);return}
+  const p=c.querySelector('pre');if(p){p.remove();b.textContent="Ko'rish";return}c.insertAdjacentHTML('beforeend',`<pre>${esc(t)}</pre>`);b.textContent='Yopish'}
+ catch(x){b.textContent='Xato: internetni tekshiring'}});
+</script>
+</body></html>
